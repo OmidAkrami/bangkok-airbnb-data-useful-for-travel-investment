@@ -9,7 +9,7 @@ Inside Airbnb scrapes Bangkok roughly once a month. I took all 24 snapshots from
 
 If you're picking where to stay, the district prices and the seasonality chart are the useful parts. If you're weighing up a condo to let, read the nightly vs monthly section and the limits at the end first.
 
-**[Interactive dashboard](https://omidakrami.github.io/bangkok-airbnb-data-useful-for-travel-investment/)** · [Kaggle notebook](https://www.kaggle.com/code/omidakrami/bangkok-airbnb-2024-2026-analysis-in-sql) · [Kaggle dataset](https://www.kaggle.com/datasets/omidakrami/bangkok-airbnb-monthly-snapshots) · [SQL files](sql/) · [Query outputs](results/)
+**[Interactive dashboard](https://omidakrami.github.io/bangkok-airbnb-data-useful-for-travel-investment/)** · [Tableau version](https://public.tableau.com/app/profile/omid.akrami/viz/BangkokAirbnb/BangkokAirbnbmarket) · [Kaggle notebook](https://www.kaggle.com/code/omidakrami/bangkok-airbnb-2024-2026-analysis-in-sql) · [Kaggle dataset](https://www.kaggle.com/datasets/omidakrami/bangkok-airbnb-monthly-snapshots) · [SQL files](sql/) · [Query outputs](results/)
 
 [![Dashboard: Bangkok Airbnb market, September 2026](docs/screenshot.png)](https://omidakrami.github.io/bangkok-airbnb-data-useful-for-travel-investment/)
 
