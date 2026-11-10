@@ -13,7 +13,10 @@ select
     (select count(distinct host_id) from latest)                                    as hosts,
     (select median_thb from price_city_overview
       where room_type = 'Entire home/apt' and stay_type = 'nightly')                as median_nightly_entire_thb,
-    (select median_occ_pct from occ_summary where room_type = 'All active listings') as median_occ_pct,
+    -- occupancy on the same base as the nightly price: active entire homes, 1-6 night minimum
+    (select round(100 * median(est_occupancy), 1) from listing_occupancy
+      where is_active and price_ok and room_type = 'Entire home/apt' and stay_type = 'nightly') as median_occ_pct,
+    (select median_occ_pct from occ_summary where room_type = 'All active listings') as median_occ_all_active_pct,
     (select total_revenue_m_thb from occ_summary where room_type = 'All active listings') as est_revenue_m_thb,
     (select yoy_pct from trend_demand_ltm where snapshot_date = date '2026-09-22')   as demand_yoy_pct,
     -- active listings, not all listings (see dq_dormant_listings)

@@ -130,10 +130,10 @@ def district_map():
     labels = ["under 1,500", "1,500 to 2,000", "2,000 to 2,500", "2,500 to 3,000", "3,000 and over"]
 
     fig, (city_ax, zoom_ax) = figure(
-        10, 6.5,
+        10, 6.8,
         f"{name(top)} is Bangkok's most expensive district at THB {ranked[top]:,.0f} a night",
-        "Median asking price per night by district, entire homes with a 1 to 6 night minimum, Sep 2026. City median\n"
-        f"THB {city_median_price():,.0f}. Left: the whole city. Right: the centre, where most listings are.",
+        "Median asking price per night by district, active entire homes with a 1 to 6 night minimum, Sep 2026.\n"
+        f"City median THB {city_median_price():,.0f}. Left: the whole city. Right: the centre, where most listings are.",
         note=f"{name(second)} ranks second mostly on size: {second_2br:.0f}% of its listings there have 2+ bedrooms.",
         ncols=2, gridspec_kw={"width_ratios": [1, 1.35]},
     )
@@ -222,7 +222,7 @@ def price_by_district():
     fig, ax = figure(
         10, 10.5,
         f"Prices by district: a {dear.median_thb / cheap.median_thb:.1f}x gap from {name(cheap.district)} to {name(dear.district)}",
-        "Median asking price per night (dot) and middle 50% of listings (bar). Entire homes, 1 to 6 night minimum,\n"
+        "Median asking price per night (dot) and middle 50% of listings (bar). Active entire homes, 1 to 6 night minimum,\n"
         "Sep 2026. Districts with 30+ listings.",
     )
     y = np.arange(len(p))

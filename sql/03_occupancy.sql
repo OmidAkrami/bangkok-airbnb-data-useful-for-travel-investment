@@ -133,6 +133,22 @@ from d
 order by total_revenue desc;
 
 
+-- 4b. Entire homes by minimum stay. Longer minimums look far busier, but the
+-- reviews per listing say otherwise: most of the gap is the model multiplying
+-- each review by the minimum stay.
+create or replace view occ_by_stay_type as
+select
+    stay_type,
+    count(*)                                                    as active_listings,
+    round(median(est_occupancy) * 100, 1)                       as median_occ_pct,
+    round(avg(reviews_ltm), 1)                                  as reviews_per_listing
+from listing_occupancy
+where is_active
+  and room_type = 'Entire home/apt'
+group by stay_type
+order by min(min_nights);
+
+
 -- 5. How concentrated is the money? Listings split into 10 equal groups by revenue.
 create or replace view occ_revenue_deciles as
 with ranked as (

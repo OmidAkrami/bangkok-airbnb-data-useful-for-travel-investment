@@ -337,6 +337,8 @@ order by a.snapshot_date;
 
 -- 6. Which districts grew? Sep 2025 vs Sep 2026, both full snapshots.
 -- Ranked on active listings because of the dormant-listing change in Feb 2026.
+-- Districts with 100+ active listings a year earlier, so a few listings can't
+-- swing the percentage.
 create or replace view trend_district_growth as
 with a as (
     select district, count(*) as n, count(*) filter (where reviews_ltm > 0) as active
@@ -356,7 +358,7 @@ select
     rank() over (order by 1.0 * (b.active - a.active) / a.active desc) as growth_rank
 from b
 join a on a.district = b.district
-where a.active >= 50
+where a.active >= 100
 order by growth_rank;
 
 

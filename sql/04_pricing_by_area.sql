@@ -11,7 +11,9 @@
 --   2. size. A district full of 2-bedroom units isn't "more expensive" than one
 --      full of studios in any useful sense. Where it matters I compare like with like.
 --
--- Bad prices (price_ok = false) are excluded throughout.
+-- Prices use active listings only (at least one review in the last 12 months),
+-- the same base as the occupancy figures, so a district's price and occupancy
+-- describe the same listings. Bad prices (price_ok = false) are excluded throughout.
 
 
 -- 1. City overview by room type and stay type
@@ -25,12 +27,13 @@ select
     percentile_cont(0.75) within group (order by price)             as p75_thb
 from listing_occupancy
 where price_ok
+  and is_active
 group by room_type, stay_type
 having count(*) >= 50
 order by room_type, min(min_nights);
 
 
--- 2. Nightly price by district: entire homes, 1-6 night minimum.
+-- 2. Nightly price by district: active entire homes, 1-6 night minimum.
 -- premium_vs_city = how far the district median sits from the city median.
 create or replace view price_by_district as
 with base as (
@@ -38,6 +41,7 @@ with base as (
     from latest l
     join listing_occupancy o on o.listing_id = l.listing_id
     where o.price_ok
+      and o.is_active
       and o.room_type = 'Entire home/apt'
       and o.stay_type = 'nightly'
 ),
@@ -88,6 +92,7 @@ select
     count(*) filter (where bedrooms = 1)                                            as one_bed_listings
 from listing_occupancy
 where price_ok
+  and is_active
   and room_type = 'Entire home/apt'
   and stay_type = 'nightly'
 group by district

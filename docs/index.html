@@ -60,6 +60,7 @@ a:hover { text-decoration: underline; }
 header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 32px; margin-bottom: 24px; }
 header h1 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; font-weight: 650; letter-spacing: -0.01em; }
 header p { margin: 0; color: var(--ink-2); max-width: 720px; }
+header .byline { margin: 0 0 6px; font-size: 13px; color: var(--ink-2); }
 .links { display: flex; gap: 8px; flex-wrap: wrap; }
 .links a, .theme-btn {
   display: inline-flex; align-items: center; height: 32px; padding: 0 12px;
@@ -155,6 +156,7 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
   <header>
     <div>
       <h1>Bangkok Airbnb market, September 2026</h1>
+      <p class="byline">By Omid Akrami · <a href="https://github.com/OmidAkrami/bangkok-airbnb-data-useful-for-travel-investment">GitHub</a> · <a href="https://www.kaggle.com/code/omidakrami/bangkok-airbnb-2024-2026-analysis-in-sql">Kaggle notebook</a></p>
       <p>24 monthly snapshots from Inside Airbnb, Sep 2024 to Sep 2026, analysed in SQL. Occupancy is modelled from reviews; prices are asking prices in Thai baht.</p>
     </div>
     <nav class="links">
@@ -213,7 +215,7 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
 
     <section class="card span-12">
       <h2>All districts</h2>
-      <p class="desc">Click a column to sort. Prices are entire homes with a 1 to 6 night minimum; occupancy covers all active listings.</p>
+      <p class="desc">Click a column to sort. Price and occupancy are active entire homes with a 1 to 6 night minimum. Share of revenue covers all active listings.</p>
       <div class="table-wrap table-scroll"><table id="table"></table></div>
     </section>
   </div>
@@ -221,6 +223,8 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
   <section class="notes" aria-label="Method notes">
     <p><b>Occupancy</b> uses Inside Airbnb's review-based model: reviews in the last 12 months, divided by a 50% review rate, times the longer of 3 nights or the minimum stay, capped at 70% of the year. Good for ranking, rough as a level.</p>
     <p><b>Data quality.</b> Feb, Mar and Apr 2026 were partial scrapes and there is no May 2026 snapshot. From Feb 2026 most dormant listings drop out of the scrape, so trends use active listings.</p>
+    <p><b>Steps in occupancy.</b> Modelled occupancy moves in steps. For a 1 to 3 night minimum one review is 6 nights, 1.6 points of the year, so several districts share a median like 16.4% or 23.0%.</p>
+    <p><b>Price timing.</b> From March 2026 the price is a quote for a stay a few days after the scrape, so these are late-September prices, the low season.</p>
     <p><b>Source.</b> Inside Airbnb, Bangkok, CC BY 4.0. Prices are asking prices before fees, not what guests paid. Listing locations are shifted by up to about 150 m, fine at district level.</p>
   </section>
 </div>
@@ -294,8 +298,8 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
     return [
       ["Listings", fmt0(d.listings)],
       ["Active listings", fmt0(d.active_listings)],
-      ["Median nightly price", d.price_all_nightly_thb == null ? "n/a" : `THB ${fmt0(d.price_all_nightly_thb)}`],
-      ["Median occupancy, all active listings", pct1(d.occ_all_active_pct)],
+      ["Median nightly price", d.nightly_price_thb == null ? "n/a" : `THB ${fmt0(d.nightly_price_thb)}`],
+      ["Median occupancy", pct1(d.nightly_occ_pct)],
       ["Share of city revenue", pct1(d.pct_of_city_revenue)],
       ["Active listings vs a year ago", signed(d.active_listings_yoy_pct)],
       ["Entire homes taking < 30 nights", pct1(d.pct_under_30_nights)],
@@ -319,8 +323,8 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
     const k = D.kpis;
     const tiles = [
       ["Active listings", fmt(k.active_listings), `of ${fmt(k.listings)} listed, reviewed in the last 12 months`],
-      ["Median nightly price", `THB ${fmt(Math.round(k.median_nightly_entire_thb))}`, "entire home, 1 to 6 night minimum"],
-      ["Median occupancy", `${k.median_occ_pct.toFixed(0)}%`, "of nights, active listings, modelled"],
+      ["Median nightly price", `THB ${fmt(Math.round(k.median_nightly_entire_thb))}`, "active entire homes, 1 to 6 night minimum"],
+      ["Median occupancy", `${k.median_occ_pct.toFixed(0)}%`, "active entire homes, 1 to 6 night minimum, modelled"],
       ["Demand, year on year", `+${k.demand_yoy_pct.toFixed(1)}%`, "reviews in the last 12 months"],
       ["Active supply, year on year", `+${k.active_supply_yoy_pct.toFixed(1)}%`, "so bookings per listing held flat"],
     ];
@@ -331,30 +335,30 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
   // ---- map -----------------------------------------------------------------
   const RAMP = () => ["--ramp-1", "--ramp-2", "--ramp-3", "--ramp-4", "--ramp-5"].map(css);
   const METRICS = [
-    { key: "price_all_nightly_thb", label: "Nightly price",
-      desc: "Median asking price per night, entire homes with a 1 to 6 night minimum, Sep 2026. Prawet ranks second mostly because its listings are bigger.",
+    { key: "nightly_price_thb", label: "Nightly price",
+      desc: "Median asking price per night, active entire homes with a 1 to 6 night minimum, districts with 30+ of them. Prawet ranks second on only 36 listings, 86% of them 2+ bedrooms.",
       thresholds: [1500, 2000, 2500, 3000], unit: (v) => `THB ${fmt0(v)}`, legend: ["< 1,500", "1,500-2,000", "2,000-2,500", "2,500-3,000", "3,000+"], legendTitle: "THB" },
     { key: "pct_of_city_revenue", label: "Share of revenue",
       desc: "Each district's share of estimated revenue from active listings over the last 12 months.",
       thresholds: [0.5, 1, 2.5, 5], unit: pct1, legend: ["< 0.5%", "0.5-1%", "1-2.5%", "2.5-5%", "5%+"], legendTitle: "Share" },
-    { key: "occ_all_active_pct", label: "Occupancy",
-      desc: "Median modelled occupancy of active listings, all room types. Districts with 30+ active listings.",
+    { key: "nightly_occ_pct", label: "Occupancy",
+      desc: "Median modelled occupancy, same listings as the price view. Weekly and monthly lets are left out: the model counts each of their reviews as 14 nights or more, which put monthly-let districts like Bang Sue at the top.",
       thresholds: [10, 15, 20, 25], unit: pct1, legend: ["< 10%", "10-15%", "15-20%", "20-25%", "25%+"], legendTitle: "Nights booked" },
     { key: "active_listings_yoy_pct", label: "Growth", diverging: true,
-      desc: "Change in active listings, Sep 2025 to Sep 2026. Districts with 50+ active listings a year ago.",
+      desc: "Change in active listings, Sep 2025 to Sep 2026. Districts with 100+ active listings a year ago.",
       thresholds: [-5, 5, 15, 30], unit: signed, legend: ["< -5%", "-5 to +5%", "+5 to +15%", "+15 to +30%", "+30%+"], legendTitle: "Change" },
     { key: "pct_under_30_nights", label: "Short stays", title: "Most entire homes take stays under 30 nights",
       desc: "Share of entire homes with a minimum stay under 30 nights, which Thailand's Hotel Act restricts without a licence. Districts with 100+ entire homes.",
       thresholds: [70, 80, 85, 90], unit: pct1, legend: ["< 70%", "70-80%", "80-85%", "85-90%", "90%+"], legendTitle: "Share" },
   ];
   // headline numbers for the titles, so they follow the data on a rebuild
-  const withPrice = D.districts.filter((d) => d.price_all_nightly_thb != null);
-  const priciest = withPrice.reduce((a, b) => (b.price_all_nightly_thb > a.price_all_nightly_thb ? b : a));
+  const withPrice = D.districts.filter((d) => d.nightly_price_thb != null);
+  const priciest = withPrice.reduce((a, b) => (b.nightly_price_thb > a.nightly_price_thb ? b : a));
   const topTwo = D.districts.slice().sort((a, b) => b.pct_of_city_revenue - a.pct_of_city_revenue).slice(0, 2);
-  const busy = D.districts.filter((d) => d.occ_all_active_pct >= 25).length;
+  const busy = D.districts.filter((d) => d.nightly_occ_pct >= 25).length;
   const withGrowth = D.districts.filter((d) => d.active_listings_yoy_pct != null);
   const grew = withGrowth.filter((d) => d.active_listings_yoy_pct > 0).length;
-  METRICS[0].title = `${priciest.name} is the most expensive district at THB ${fmt0(priciest.price_all_nightly_thb)} a night`;
+  METRICS[0].title = `${priciest.name} is the most expensive district at THB ${fmt0(priciest.nightly_price_thb)} a night`;
   METRICS[1].title = `${topTwo[0].name} and ${topTwo[1].name} earn ${Math.round(topTwo[0].pct_of_city_revenue + topTwo[1].pct_of_city_revenue)}% of the city's Airbnb revenue`;
   METRICS[2].title = `Only ${busy} districts have a median occupancy above 25%`;
   METRICS[3].title = `Active listings grew in ${grew} of ${withGrowth.length} districts over the year`;
@@ -713,8 +717,8 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
     { key: "name", label: "District", f: (v) => v },
     { key: "listings", label: "Listings", f: fmt0 },
     { key: "active_listings", label: "Active", f: fmt0 },
-    { key: "price_all_nightly_thb", label: "Nightly price (THB)", f: fmt0 },
-    { key: "occ_all_active_pct", label: "Occupancy", f: pct1 },
+    { key: "nightly_price_thb", label: "Nightly price (THB)", f: fmt0 },
+    { key: "nightly_occ_pct", label: "Occupancy", f: pct1 },
     { key: "pct_of_city_revenue", label: "Share of revenue", f: pct1 },
     { key: "active_listings_yoy_pct", label: "Active, YoY", f: signed },
     { key: "pct_under_30_nights", label: "Entire homes < 30 nights", f: pct1 },

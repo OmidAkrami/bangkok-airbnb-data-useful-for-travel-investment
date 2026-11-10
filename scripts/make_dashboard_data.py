@@ -56,17 +56,11 @@ def geometry():
 
 
 def main():
-    districts = pd.read_csv(DASH / "districts.csv")
-    price = pd.read_csv(RES / "price_by_district.csv")[["district", "median_thb", "price_rank", "listings"]]
-    price = price.rename(columns={"median_thb": "price_all_nightly_thb", "listings": "priced_nightly_listings"})
-    occ = pd.read_csv(RES / "occ_by_district.csv")[["district", "median_occ_pct", "active_listings"]]
-    occ = occ.rename(columns={"median_occ_pct": "occ_all_active_pct", "active_listings": "occ_active"})
-    d = districts.merge(price, on="district", how="left").merge(occ, on="district", how="left")
-    # only show a district price or occupancy when it rests on 30+ listings
-    d.loc[d.price_rank.isna(), "price_all_nightly_thb"] = None
-    d.loc[d.occ_active.fillna(0) < 30, "occ_all_active_pct"] = None
+    # nightly_price_thb and nightly_occ_pct in dash_districts share one base:
+    # active entire homes, 1 to 6 night minimum, districts with 30+ of them
+    d = pd.read_csv(DASH / "districts.csv")
     d["name"] = d.district.map(lambda x: NAMES.get(x, x))
-    d = d.drop(columns=["price_rank", "occ_active", "lat", "lon"])
+    d = d.drop(columns=["lat", "lon"])
 
     # city medians for the price vs occupancy scatter, same base as
     # price_district_quadrants: active entire homes with a 1 to 6 night minimum

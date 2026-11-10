@@ -19,11 +19,11 @@ It runs on DuckDB. The analysis files are written to be mostly portable, but the
 
 ## What I found
 
-Figures are from the September 2026 snapshot unless a date is given. Each links to the query output it came from.
+Figures are from the September 2026 snapshot unless a date is given. Prices and occupancy use active listings, ones with at least one review in the last 12 months. Each links to the query output it came from.
 
 ### Occupancy
 
-- The median active listing (one or more reviews in the last 12 months) is booked about 18% of nights, roughly 66 a year. For entire homes it's 23%. ([occ_summary](results/occ_summary.csv))
+- The median active listing (one or more reviews in the last 12 months) is booked about 18% of nights, roughly 66 a year. For entire homes it depends on the minimum stay: 16% with a 1 to 6 night minimum, 31% at 7 to 29 nights and 49% at 30+. The longer ones are mostly the model multiplying reviews by the minimum stay: they get about 4 reviews a year against 16 for nightly lets. ([occ_summary](results/occ_summary.csv), [occ_by_stay_type](results/occ_by_stay_type.csv))
 - The spread is wide. 22% of active listings are booked less than 5% of the year, and the top 10% of listings take 42% of estimated revenue. ([occ_distribution](results/occ_distribution.csv), [occ_revenue_deciles](results/occ_revenue_deciles.csv))
 - Vadhana and Khlong Toei, the two Sukhumvit districts, account for 42% of the city's estimated Airbnb revenue. ([occ_by_district](results/occ_by_district.csv))
 
@@ -31,19 +31,19 @@ Figures are from the September 2026 snapshot unless a date is given. Each links 
 
 ### Prices by area
 
-These use entire homes with a minimum stay of 1 to 6 nights. Weekly and monthly lets are kept out because their quoted per-night price is a discounted rate (more on that below).
+These use active entire homes with a minimum stay of 1 to 6 nights. Weekly and monthly lets are kept out because their quoted per-night price is a discounted rate (more on that below).
 
-- City median: ฿2,160 a night. Among districts with 30+ listings, Pathum Wan is the most expensive at ฿3,933 (+82%). The cheapest are Lak Si (฿1,090) and Bang Kapi (฿1,188). ([price_by_district](results/price_by_district.csv))
+- City median: ฿2,193 a night. Among the 31 districts with 30+ such listings, Pathum Wan is the most expensive at ฿3,695 (+69%). The cheapest are Lak Si (฿1,041) and Bang Phlat (฿1,091). ([price_by_district](results/price_by_district.csv))
 
 ![Median nightly price by district](charts/01_district_prices.png)
 
 <details>
-<summary>All 34 districts with 30+ listings, with the middle 50% of prices</summary>
+<summary>All 31 districts with 30+ listings, with the middle 50% of prices</summary>
 
 ![Price range by district](charts/03_price_by_district.png)
 
 </details>
-- Some of that gap is unit mix. Two thirds of Pathum Wan's listings have 2+ bedrooms. Comparing 1-beds only, Pathum Wan vs Bang Na goes from 2.9x to 2.4x. ([price_district_by_size](results/price_district_by_size.csv))
+- Some of that gap is unit mix. Two thirds of Pathum Wan's listings have 2+ bedrooms. Comparing 1-beds only, Pathum Wan vs Bang Na goes from 2.8x to 2.3x. ([price_district_by_size](results/price_district_by_size.csv))
 - Cheaper listings don't get booked more. The cheapest tenth of listings is booked a median 13% of the year, the middle of the market about 20%, the most expensive tenth 13% again. Low prices may also mean lower quality, so this doesn't prove price cuts don't work, but there's no sign of it here. ([price_bands_vs_performance](results/price_bands_vs_performance.csv))
 - Listings with a pool price 4% higher in a straight comparison and about 28% higher inside the same district, bedroom count and property type. I don't read that as the value of the pool. In Bangkok a pool mostly means a newer condo tower. Listings with a gym price about 8% higher by the same method. ([price_amenity_premium](results/price_amenity_premium.csv))
 
