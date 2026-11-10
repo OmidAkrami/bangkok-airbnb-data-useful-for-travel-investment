@@ -5,15 +5,19 @@
 --   1. stay length. The quote is for a stay of min_nights, so a 7-night
 --      minimum shows a weekly per-night rate and a 30-night minimum a monthly
 --      one, both discounted. First version split at 30 nights and that mixed
---      weekly lets into "short stays": they're 38% of short-stay 1-beds, cheaper
---      per night and with inflated modelled occupancy. So prices here use
+--      weekly lets into "short stays": they're 26% of active entire homes taking
+--      stays under 30 nights (price_city_overview), cheaper per night and with
+--      inflated modelled occupancy. So prices here use
 --      stay_type = 'nightly' (1-6 night minimum) unless a view says otherwise.
 --   2. size. A district full of 2-bedroom units isn't "more expensive" than one
 --      full of studios in any useful sense. Where it matters I compare like with like.
 --
--- Prices use active listings only (at least one review in the last 12 months),
--- the same base as the occupancy figures, so a district's price and occupancy
--- describe the same listings. Bad prices (price_ok = false) are excluded throughout.
+-- District prices (city overview, by district, by size, price bands, quadrants)
+-- use active listings only (at least one review in the last 12 months), the same
+-- base as the occupancy figures, so a district's price and occupancy describe the
+-- same listings. Two views price every listing, active or not, and say why:
+-- price_short_vs_monthly and price_amenity_premium.
+-- Bad prices (price_ok = false) are excluded throughout.
 
 
 -- 1. City overview by room type and stay type
@@ -114,6 +118,9 @@ order by one_bed_thb desc;
 -- occupancy with the district break-even instead would ignore that a listing
 -- priced above the median needs fewer nights.
 -- The model caps occupancy at 70%, so read this as a floor.
+-- Prices here are medians of every priced 1-bed, active or not: monthly lets get
+-- about 4 reviews a year, so an active-only filter would drop much of the monthly
+-- side. Occupancy and pct_beating_monthly use active listings.
 create or replace view price_short_vs_monthly as
 with one_bed as (
     select district, stay_type, is_active, price, est_occupancy, est_revenue
@@ -151,8 +158,8 @@ select
     d.monthly_listings,
     round(d.nightly_price)                                          as nightly_price_thb,
     round(d.monthly_price * 30)                                     as monthly_rent_thb,
-    round(100 * (1 - d.monthly_price / d.nightly_price), 1)         as monthly_discount_pct,
-    round(100 * d.monthly_price / d.nightly_price, 1)               as break_even_occ_pct,
+    round(100 * (1 - d.monthly_price / d.nightly_price), 2)         as monthly_discount_pct,
+    round(100 * d.monthly_price / d.nightly_price, 2)               as break_even_occ_pct,
     round(100 * p.median_occ, 1)                                    as nightly_median_occ_pct,
     round(100 * p.p75_occ, 1)                                       as nightly_p75_occ_pct,
     round(100 * p.share_beating, 1)                                 as pct_beating_monthly
@@ -164,8 +171,8 @@ order by d.nightly_listings desc;
 
 -- 5. What's an amenity worth?
 -- Naive comparison (all listings with a pool vs without) mixes in location,
--- size and property type: 76% of 1-bed units have a pool (shared, in a condo
--- tower), while the expensive end of the market is houses and townhouses that
+-- size and property type: 76% of entire-home 1-beds taking stays under 30
+-- nights list a pool (shared, in a condo tower), while the expensive end of the market is houses and townhouses that
 -- mostly don't. So compare inside cells instead, two ways:
 --   A: same district + bedrooms
 --   B: same district + bedrooms + property type

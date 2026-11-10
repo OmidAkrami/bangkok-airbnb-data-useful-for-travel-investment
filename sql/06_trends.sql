@@ -52,7 +52,7 @@ order by month;
 -- average (the "2x12" one: 13 months with the two ends at half weight), then
 -- averaged by calendar month and scaled so the average month = 100.
 -- Each month's share of its calendar year doesn't work here: with reviews
--- growing 20-60% a year it inflates late-year months and deflates early ones,
+-- growing 19% to 137% a year it inflates late-year months and deflates early ones,
 -- and puts the peak in December when January is higher every year.
 -- Review dates trail the actual stay by a week or two.
 create or replace view trend_seasonality as
@@ -182,7 +182,7 @@ order by c.snapshot_date;
 --   new  = first time this listing id appears (Sep 2024 skipped, everything is "new" there)
 --   gone = seen in the previous snapshot and never again
 -- change_vs_prev_complete skips partial snapshots so the Feb-Apr 2026 dip doesn't fake a crash.
--- Use the active column for anything across Feb 2026: total listings lost ~2,000
+-- Use the active column for anything across Feb 2026: total listings lost ~2,300
 -- dormant units that month to a scraper change (dq_dormant_listings).
 -- The Jun 2026 "new" number is inflated: it covers everything created since
 -- January that the partial scrapes and the missing May snapshot didn't catch.
@@ -402,7 +402,7 @@ order by g.growth_rank;
 -- scope change, so the last column is a floor.
 -- "New" means first seen in the panel. The Oct 2024 cohort includes a few
 -- older listings that were just missing from Sep 2024 (9% had a first review
--- 90+ days before, vs 3-5% for later cohorts).
+-- 90+ days before, vs 2.5-5.5% for later cohorts).
 create or replace view trend_cohort_retention as
 with first_seen as (
     select listing_id, min(snapshot_date) as cohort_date

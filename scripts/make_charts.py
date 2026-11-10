@@ -125,6 +125,7 @@ def district_map():
     ranked = price[price.price_rank.notna()].set_index("district")["median_thb"]
     top, second = ranked.nlargest(2).index
     second_2br = price.set_index("district").pct_2br_plus[second]
+    second_n = price.set_index("district").listings[second]
 
     bins = [0, 1500, 2000, 2500, 3000, 1e9]
     labels = ["under 1,500", "1,500 to 2,000", "2,000 to 2,500", "2,500 to 3,000", "3,000 and over"]
@@ -134,7 +135,7 @@ def district_map():
         f"{name(top)} is Bangkok's most expensive district at THB {ranked[top]:,.0f} a night",
         "Median asking price per night by district, active entire homes with a 1 to 6 night minimum, Sep 2026.\n"
         f"City median THB {city_median_price():,.0f}. Left: the whole city. Right: the centre, where most listings are.",
-        note=f"{name(second)} ranks second mostly on size: {second_2br:.0f}% of its listings there have 2+ bedrooms.",
+        note=f"{name(second)} ranks second on only {second_n} listings, {second_2br:.0f}% of them with 2+ bedrooms.",
         ncols=2, gridspec_kw={"width_ratios": [1, 1.35]},
     )
 
@@ -255,7 +256,8 @@ def nightly_vs_monthly():
         f"The typical one gets {s.nightly_median_occ_pct.min():.0f} to {s.nightly_median_occ_pct.max():.0f}%",
         "1-bedroom entire homes, Sep 2026. Break-even = monthly price per night / nightly price per night, before\n"
         "cleaning, platform fees and utilities. Districts with 30+ nightly and 30+ monthly listings.",
-        note="Chatuchak and Bang Phlat are left out: their monthly 1-beds are priced above the nightly ones, so the comparison doesn't hold.",
+        note="Prices: every priced 1-bed, active or not. Occupancy: active nightly 1-beds. Chatuchak and Bang Phlat are left out:\n"
+             "their monthly 1-beds are priced above the nightly ones, so the comparison doesn't hold.",
     )
     y = np.arange(len(s))
     ax.hlines(y, s.nightly_median_occ_pct, s.break_even_occ_pct, color=GRID, lw=3)
@@ -421,7 +423,7 @@ def growth_two_ways():
         10, 3.5,
         f"Counting only surviving listings puts demand growth at {g.growth_pct[0]:.0f}%, not {g.growth_pct[1]:.1f}%",
         "Growth in reviews, latest 12 months vs the 12 before. The reviews file only covers listings still live in Sep 2026;\n"
-        f"listings that left since Sep 2024 took at least {missing:.0f}% of the review history with them.",
+        f"listings that left since Sep 2024 took at least {missing:.1f}% of the review history with them.",
     )
     labels = ["Reviews file\n(survivors only)", "Snapshot panel\n(every listing live at the time)"]
     vals = g.growth_pct.values
@@ -479,7 +481,7 @@ def price_index():
         f"Asking prices rose {listed.price_index[top] - 100:.0f}% into the {listed.snapshot_date[top].year} high season "
         f"and were back to the start by {back.snapshot_date:%B}",
         "Same-listing price index: each listing compared only with itself, same minimum stay, back-to-back complete\n"
-        "snapshots. Airbnb changed what the price field means in 2026, so the two series are kept apart.",
+        "snapshots. The price field changed meaning in 2026, so the two series are kept apart.",
         note="No usable price Dec 2025 to Feb 2026; Mar and Apr 2026 were partial scrapes.",
         ncols=2, sharey=True, gridspec_kw={"width_ratios": [15, 4]},
     )
@@ -512,7 +514,8 @@ def amenity_premium():
         10, 4.9,
         f"Like for like, listings with a pool price {pool.premium_plus_property_type_pct:.0f}% higher, not {pool.naive_premium_pct:.0f}%",
         "Price premium for listings with each amenity. Naive = all listings with vs without. Like-for-like = medians\n"
-        "compared inside the same district, bedroom count and property type, then averaged. Entire homes, Sep 2026.",
+        "compared inside the same district, bedroom count and property type, then averaged. Every priced entire home\n"
+        "with a 1 to 6 night minimum, active or not, Sep 2026.",
         note="Read the pool figure as a building premium: in Bangkok a pool mostly means a newer condo tower.",
     )
     y = np.arange(len(a))

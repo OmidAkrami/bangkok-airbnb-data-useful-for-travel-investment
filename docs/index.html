@@ -179,7 +179,7 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
 
     <section class="card span-5">
       <h2>Price vs occupancy by district</h2>
-      <p class="desc">Active entire homes with a 1 to 6 night minimum. Bubble size is the number of active listings. Lines mark the city medians.</p>
+      <p class="desc">Active entire homes with a 1 to 6 night minimum. Bubble size is the number of those listings. Lines mark the city medians.</p>
       <div class="legend" id="scatter-legend"></div>
       <div class="chart" id="scatter"></div>
     </section>
@@ -203,7 +203,7 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
       <p class="desc">Occupancy a nightly 1-bed needs to match a monthly let all year, against what the median nightly 1-bed achieves. Before cleaning, fees and utilities.</p>
       <div class="legend" id="dumbbell-legend"></div>
       <div class="chart" id="dumbbell"></div>
-      <p class="foot">Districts with 30+ nightly and 30+ monthly 1-beds. Chatuchak and Bang Phlat are left out because their monthly 1-beds are priced above the nightly ones.</p>
+      <p class="foot">Districts with 30+ nightly and 30+ monthly 1-beds. Prices cover every priced 1-bed, active or not, since monthly lets get few reviews; occupancy uses active ones. Chatuchak and Bang Phlat are left out because their monthly 1-beds are priced above the nightly ones.</p>
     </section>
 
     <section class="card span-6">
@@ -441,15 +441,15 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
     const m = { t: 10, r: 14, b: 40, l: 44 };
     const data = D.districts.filter((d) => d.nightly_price_thb != null && d.nightly_occ_pct != null)
       .map((d) => ({ ...d }));
-    const top = new Set(data.slice().sort((a, b) => b.active_listings - a.active_listings).slice(0, 7).map((d) => d.district));
+    const top = new Set(data.slice().sort((a, b) => b.nightly_active_listings - a.nightly_active_listings).slice(0, 7).map((d) => d.district));
     data.forEach((d) => { d.always = top.has(d.district); });
     const x = d3.scaleLinear().domain([800, d3.max(data, (d) => d.nightly_price_thb) * 1.08]).nice().range([m.l, w - m.r]);
     const y = d3.scaleLinear().domain([0, d3.max(data, (d) => d.nightly_occ_pct) * 1.12]).nice().range([h - m.b, m.t]);
-    const r = d3.scaleSqrt().domain([0, d3.max(data, (d) => d.active_listings)]).range([0, Math.min(26, w / 18)]);
+    const r = d3.scaleSqrt().domain([0, d3.max(data, (d) => d.nightly_active_listings)]).range([0, Math.min(26, w / 18)]);
     const city = D.scatterCity;
 
     document.getElementById("scatter-legend").innerHTML =
-      `<span class="key"><span class="dot" style="background:${css("--blue")}"></span>District (size = active listings)</span>` +
+      `<span class="key"><span class="dot" style="background:${css("--blue")}"></span>District (size = listings in this view)</span>` +
       `<span class="key"><span class="line" style="background:${css("--muted")}"></span>City median for the same listings: THB ${fmt(city.price_thb)}, ${city.occ_pct}%</span>`;
 
     el.innerHTML = "";
@@ -467,10 +467,10 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
     svg.append("line").attr("class", "baseline").attr("x1", m.l).attr("x2", w - m.r).attr("y1", y(city.occ_pct)).attr("y2", y(city.occ_pct)).style("stroke", css("--muted"));
 
     const g = svg.append("g");
-    g.selectAll("circle").data(data.sort((a, b) => b.active_listings - a.active_listings)).join("circle")
+    g.selectAll("circle").data(data.sort((a, b) => b.nightly_active_listings - a.nightly_active_listings)).join("circle")
       .attr("class", "bubble")
       .attr("cx", (d) => x(d.nightly_price_thb)).attr("cy", (d) => y(d.nightly_occ_pct))
-      .attr("r", (d) => Math.max(5, r(d.active_listings)))
+      .attr("r", (d) => Math.max(5, r(d.nightly_active_listings)))
       .attr("fill", css("--blue")).attr("fill-opacity", 0.55)
       .attr("stroke", css("--surface")).attr("stroke-width", 1.5)
       .on("mousemove", (evt, d) => {
@@ -479,7 +479,7 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
           ["Median nightly price, active", `THB ${fmt0(d.nightly_price_thb)}`],
           ["vs city median", signed(d.nightly_price_vs_city_pct)],
           ["Median occupancy, entire homes", pct1(d.nightly_occ_pct)],
-          ["Active listings", fmt0(d.active_listings)],
+          ["Listings in this view", fmt0(d.nightly_active_listings)],
           ["Position", d.quadrant || "n/a"],
         ]);
       })
@@ -492,7 +492,7 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
     // try right, left, above, below each bubble; keep the first spot that doesn't overlap
     const placed = [];
     labels.each(function (d) {
-      const t = d3.select(this), cx = x(d.nightly_price_thb), cy = y(d.nightly_occ_pct), rr = Math.max(5, r(d.active_listings));
+      const t = d3.select(this), cx = x(d.nightly_price_thb), cy = y(d.nightly_occ_pct), rr = Math.max(5, r(d.nightly_active_listings));
       const tw = this.getComputedTextLength(), th = 12;
       const spots = [[cx + rr + 3, cy, "start"], [cx - rr - 3, cy, "end"], [cx, cy - rr - 8, "middle"], [cx, cy + rr + 9, "middle"]];
       for (const [sx, sy, anchor] of spots) {

@@ -60,6 +60,7 @@ select
     q.median_price_thb                                              as nightly_price_thb,
     q.price_vs_city_pct                                             as nightly_price_vs_city_pct,
     q.median_occ_pct                                                as nightly_occ_pct,
+    q.active_listings                                               as nightly_active_listings,
     o.median_occ_pct                                                as median_occ_all_active_pct,
     o.median_revenue_thb,
     o.total_revenue_m_thb,

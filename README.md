@@ -19,7 +19,7 @@ It runs on DuckDB. The analysis files are written to be mostly portable, but the
 
 ## What I found
 
-Figures are from the September 2026 snapshot unless a date is given. Prices and occupancy use active listings, ones with at least one review in the last 12 months. Each links to the query output it came from.
+Figures are from the September 2026 snapshot unless a date is given. District prices and occupancy use active listings, ones with at least one review in the last 12 months; the two figures that also count inactive listings say so. Each links to the query output it came from.
 
 ### Occupancy
 
@@ -45,13 +45,13 @@ These use active entire homes with a minimum stay of 1 to 6 nights. Weekly and m
 </details>
 - Some of that gap is unit mix. Two thirds of Pathum Wan's listings have 2+ bedrooms. Comparing 1-beds only, Pathum Wan vs Bang Na goes from 2.8x to 2.3x. ([price_district_by_size](results/price_district_by_size.csv))
 - Cheaper listings don't get booked more. The cheapest tenth of listings is booked a median 13% of the year, the middle of the market about 20%, the most expensive tenth 13% again. Low prices may also mean lower quality, so this doesn't prove price cuts don't work, but there's no sign of it here. ([price_bands_vs_performance](results/price_bands_vs_performance.csv))
-- Listings with a pool price 4% higher in a straight comparison and about 28% higher inside the same district, bedroom count and property type. I don't read that as the value of the pool. In Bangkok a pool mostly means a newer condo tower. Listings with a gym price about 8% higher by the same method. ([price_amenity_premium](results/price_amenity_premium.csv))
+- Across every priced entire home with a 1 to 6 night minimum, active or not, listings with a pool price 4% higher in a straight comparison and about 28% higher inside the same district, bedroom count and property type. I don't read that as the value of the pool. In Bangkok a pool mostly means a newer condo tower. Listings with a gym price about 8% higher by the same method. ([price_amenity_premium](results/price_amenity_premium.csv))
 
 ![Amenity premium, naive vs like-for-like](charts/11_amenity_premium.png)
 
 ### Nightly letting vs renting by the month
 
-The question an owner of a 1-bed condo would ask. In 13 of the 15 districts with enough of both, monthly 1-beds are priced 28% to 51% below the nightly rate x 30. So a nightly let needs 50% to 72% occupancy just to match a unit let by the month all year, before cleaning, platform fees or utilities. The median nightly 1-bed in those districts runs at 7% to 27%. Counting each listing at its own price, between 2% and 24% of active nightly 1-beds out-earn a year of the district's median monthly rent. ([price_short_vs_monthly](results/price_short_vs_monthly.csv))
+The question an owner of a 1-bed condo would ask. In 13 of the 15 districts with enough of both, monthly 1-beds are priced 28% to 51% below the nightly rate x 30. So a nightly let needs 49% to 72% occupancy just to match a unit let by the month all year, before cleaning, platform fees or utilities. The median nightly 1-bed in those districts runs at 7% to 27%. Counting each listing at its own price, between 2% and 24% of active nightly 1-beds out-earn a year of the district's median monthly rent. Prices here cover every priced 1-bed, active or not, because monthly lets get only about 4 reviews a year; occupancy and the out-earning share use active ones. ([price_short_vs_monthly](results/price_short_vs_monthly.csv))
 
 In Chatuchak and Bang Phlat the monthly 1-beds are actually pricier per night than the nightly ones. Different stock, so the comparison doesn't work there.
 
@@ -82,7 +82,7 @@ In Chatuchak and Bang Phlat the monthly 1-beds are actually pricier per night th
 ![Same-listing price index](charts/10_price_index.png)
 
 - Of the listings that first appear in a given month, 74 to 83% are still listed 3 months later and 53 to 64% a year later. ([trend_cohort_retention](results/trend_cohort_retention.csv))
-- District growth doesn't follow a simple centre vs outskirts pattern. Among districts with 100+ active listings a year earlier, the biggest movers are Thon Buri +66% (one host has 36 of the 180 listings that became active there), Samphanthawong +34% and Bang Na +30%. Bang Phlat (-11%), Bang Sue (-9%) and Suan Luang (-8%) shrank, and so did central Pathum Wan, Phra Nakhon and Sathon (-3% to -5%). ([trend_district_growth](results/trend_district_growth.csv), [trend_district_new_listings](results/trend_district_new_listings.csv))
+- District growth doesn't follow a simple centre vs outskirts pattern. Among districts with 100+ active listings a year earlier, the biggest movers are Thon Buri +66% (one host has 36 of the 180 listings that became active there), Samphanthawong +34% and Bang Na +30%. Bang Phlat (-11%), Bang Sue (-9%), Suan Luang (-8%) and Din Daeng (-7%) shrank, and so did central Pathum Wan, Phra Nakhon and Sathon (-3% to -5%). ([trend_district_growth](results/trend_district_growth.csv), [trend_district_new_listings](results/trend_district_new_listings.csv))
 
 ### Stays under 30 nights
 
@@ -98,13 +98,13 @@ Most of the time on this went into working out which numbers hold up. The checks
 
 **The partial scrapes are skewed.** March and April 2026 contain 6 and 1 listings with a 30+ night minimum, against around 13 to 15% of listings in every full snapshot. ([dq_partial_scrape_profile](results/dq_partial_scrape_profile.csv))
 
-**Dormant listings drop out from February 2026.** Until January every snapshot had around 3,000 listings with a calendar blocked all year and no reviews. Afterwards, around 800. 73% of the 3,359 listings last seen in January 2026 were fully blocked; for any other month's leavers it's 2 to 15%. My first host chart showed hosts with 10+ listings jumping from 46% to 51% of supply between January and June 2026, and about half of that was this. Trends that cross February 2026 use active listings. Even then, the 10+ host share sits at 41 to 43% for 16 months and steps to 44.5% across the gap, which I can't separate from scrape changes. ([dq_dormant_listings](results/dq_dormant_listings.csv), [host_pro_share_trend](results/host_pro_share_trend.csv))
+**Dormant listings drop out from February 2026.** Until January every snapshot had around 3,000 listings with a calendar blocked all year and no reviews. Afterwards, around 800. 73% of the 3,359 listings last seen in January 2026 were fully blocked; for the leavers of every other complete snapshot it's 3 to 15%. My first host chart showed hosts with 10+ listings jumping from 46% to 51% of supply between January and June 2026, and about half of that was this. Trends that cross February 2026 use active listings. Even then, the 10+ host share sits at 41 to 43% for 16 months and steps to 44.5% across the gap, which I can't separate from scrape changes. ([dq_dormant_listings](results/dq_dormant_listings.csv), [dq_leavers_blocked](results/dq_leavers_blocked.csv), [host_pro_share_trend](results/host_pro_share_trend.csv))
 
 ![Listings and dormant listings per snapshot](charts/07_scrape_changes.png)
 
-**Price means two different things.** Until November 2025 `price` is the listed nightly price. December 2025 to February 2026 have no price. From March 2026 it's a quote for a stay of `min_nights` starting a few days out (true for 94% of listings). So a 7-night minimum shows a weekly per-night rate and a 30-night minimum a monthly one. 38% of entire-home 1-beds that accept stays under 30 nights have a 7 to 29 night minimum, which is why pricing uses 1 to 6 night listings. The two price series are never compared with each other. ([dq_quote_window](results/dq_quote_window.csv), [price_city_overview](results/price_city_overview.csv))
+**Price means two different things.** Until November 2025 `price` is the listed nightly price. December 2025 to February 2026 have no price. From March 2026 it's a quote for a stay of `min_nights` starting a few days out (true for 94% of listings). So a 7-night minimum shows a weekly per-night rate and a 30-night minimum a monthly one. 26% of active entire homes with a usable price that accept stays under 30 nights have a 7 to 29 night minimum, which is why pricing uses 1 to 6 night listings. The two price series are never compared with each other. ([dq_quote_window](results/dq_quote_window.csv), [price_city_overview](results/price_city_overview.csv))
 
-**Survivorship in the reviews file.** It only has reviews for listings still listed in September 2026. Listings that left since September 2024 took about 155,000 reviews with them, at least 18% of the history (more left before 2024). Measured from the reviews file, demand grew 24% in a year. Summing `reviews_ltm` across each snapshot, which counts listings that later disappeared, gives 10.5%. The second is the less biased number. ([trend_growth_two_ways](results/trend_growth_two_ways.csv))
+**Survivorship in the reviews file.** It only has reviews for listings still listed in September 2026. Listings that left since September 2024 took about 155,000 reviews with them, at least 17.7% of the history (more left before 2024). Measured from the reviews file, demand grew 24% in a year. Summing `reviews_ltm` across each snapshot, which counts listings that later disappeared, gives 10.5%. The second is the less biased number. ([trend_growth_two_ways](results/trend_growth_two_ways.csv))
 
 ![Demand growth measured two ways](charts/08_growth_two_ways.png)
 

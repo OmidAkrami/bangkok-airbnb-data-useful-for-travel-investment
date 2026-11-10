@@ -41,7 +41,7 @@ order by l.snapshot_date;
 -- had ~3,000 dormant listings (calendar blocked all year, no reviews in 12 months).
 -- From Feb 2026 most of them are gone from the scrape, and they never come back.
 -- 3,359 listings were last seen in Jan 2026, 73% of them fully blocked. For the
--- leavers of every other month that share is between 2% and 15%. I read that
+-- leavers of every other complete snapshot it's 3% to 15% (dq_leavers_blocked). I read that
 -- as a change in what gets scraped. Consequence: total listing and host counts
 -- before and after Feb 2026 are not comparable. Active listings (reviewed in the last
 -- 12 months) are, so trends in 05 and 06 use those.
@@ -93,6 +93,28 @@ join last_seen ls on ls.listing_id = d.listing_id
 join snapshots sn on sn.snapshot_date = d.snapshot_date
 group by d.snapshot_date, sn.is_complete
 order by d.snapshot_date;
+
+
+-- 1e. Who leaves after each snapshot? Listings last seen in a snapshot and the
+-- share of them that were fully blocked. Jan 2026 stands out (73% of 3,359);
+-- every other complete snapshot runs between 3% and 15%.
+create or replace view dq_leavers_blocked as
+with last_seen as (
+    select listing_id, max(snapshot_date) as last_date
+    from stg_listings
+    group by listing_id
+)
+select
+    l.snapshot_date,
+    s.is_complete,
+    count(*)                                                        as last_seen_here,
+    round(100.0 * avg(case when l.avail_365 = 0 then 1 else 0 end), 1) as pct_fully_blocked
+from stg_listings l
+join last_seen ls on ls.listing_id = l.listing_id and ls.last_date = l.snapshot_date
+join snapshots s on s.snapshot_date = l.snapshot_date
+where l.snapshot_date < (select max(snapshot_date) from stg_listings)
+group by l.snapshot_date, s.is_complete
+order by l.snapshot_date;
 
 
 -- 2. Fill rate of the fields I rely on, per snapshot.
