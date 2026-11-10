@@ -329,17 +329,27 @@ def supply_demand():
         f"Over the last year demand grew {last.demand - 100:.1f}% and supply {last.supply - 100:.1f}%, "
         "so bookings per listing held flat",
         "Index, Sep 2025 = 100. Demand = reviews in the trailing 12 months, summed across each snapshot.\n"
-        "Supply = listings with at least one review in the last 12 months. Complete snapshots only.",
+        "Supply = listings with at least one review in the last 12 months. Feb to Apr 2026 were partial scrapes and\n"
+        "May is missing, so the dashed line joins the last full snapshot before the gap to the first one after.",
     )
-    ax.axvspan(pd.Timestamp("2026-02-10"), pd.Timestamp("2026-06-15"), color=NO_DATA, lw=0)
-    ax.text(pd.Timestamp("2026-04-12"), 79.5, "Partial or\nmissing\nscrapes", ha="center",
-            va="bottom", fontsize=8.5, color=INK_2, linespacing=1.3)
-    gap = pd.Timestamp("2026-03-01")
+    # the gap runs from the last full snapshot before the first partial one to the
+    # first full snapshot after the last partial one
+    partial = m.index[~m.is_complete]
+    before, after = m.loc[:partial.min() - 1], m.loc[partial.max() + 1:]
+    gap_from = before[before.is_complete].iloc[-1]
+    gap_to = after[after.is_complete].iloc[0]
+    ax.axvspan(gap_from.snapshot_date, gap_to.snapshot_date, color=NO_DATA, lw=0)
+    ax.text(gap_from.snapshot_date + (gap_to.snapshot_date - gap_from.snapshot_date) / 2, 115.2, "partial scrapes",
+            ha="center", va="top", fontsize=8.5, color=INK_2)
     for col, label, c in [("demand", "Demand: reviews, last 12 months", ORANGE),
                           ("supply", "Supply: active listings", BLUE)]:
-        for part in (full[full.snapshot_date < gap], full[full.snapshot_date > gap]):
+        # solid on each side, meeting the band's edges; dashed across it
+        for k, part in enumerate((full[full.snapshot_date <= gap_from.snapshot_date],
+                                  full[full.snapshot_date >= gap_to.snapshot_date])):
             ax.plot(part.snapshot_date, part[col], color=c, lw=2, solid_capstyle="round",
-                    label=label if part.snapshot_date.iloc[0] < gap else None)
+                    label=label if k == 0 else None)
+        ax.plot([gap_from.snapshot_date, gap_to.snapshot_date], [gap_from[col], gap_to[col]], color=c, lw=1.5,
+                linestyle=(0, (4, 4)))
         last = full.iloc[-1]
         ax.scatter([last.snapshot_date], [last[col]], s=36, color=c, zorder=3,
                    edgecolor=SURFACE, linewidth=1.5)
