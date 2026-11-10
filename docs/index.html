@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bangkok Airbnb Market</title>
+<meta name="description" content="Bangkok Airbnb listings, prices, occupancy and hosts from 24 monthly Inside Airbnb snapshots, Sep 2024 to Sep 2026.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f6f5f2;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --blue: #2a78d6;
+  --blue-light: #86b6ef;
+  --orange: #eb6834;
+  --grey-mark: #c3c2b7;
+  --no-data: #ecebe6;
+  --wash: rgba(11, 11, 11, 0.04);
+  --ramp-1: #cde2fb; --ramp-2: #9ec5f4; --ramp-3: #5598e7; --ramp-4: #256abf; --ramp-5: #104281;
+  --neg-2: #e34948; --neg-1: #f2a7a6; --mid: #e6e5df;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --blue: #3987e5;
+  --blue-light: #1c5cab;
+  --orange: #d95926;
+  --grey-mark: #5b5a55;
+  --no-data: #2a2a28;
+  --wash: rgba(255, 255, 255, 0.05);
+  --ramp-1: #104281; --ramp-2: #1c5cab; --ramp-3: #2a78d6; --ramp-4: #5598e7; --ramp-5: #9ec5f4;
+  --neg-2: #e66767; --neg-1: #8a3b3a; --mid: #383835;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 32px 24px 48px; }
+
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 32px; margin-bottom: 24px; }
+header h1 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; font-weight: 650; letter-spacing: -0.01em; }
+header p { margin: 0; color: var(--ink-2); max-width: 720px; }
+.links { display: flex; gap: 8px; flex-wrap: wrap; }
+.links a, .theme-btn {
+  display: inline-flex; align-items: center; height: 32px; padding: 0 12px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
+  color: var(--ink); font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;
+}
+.links a:hover, .theme-btn:hover { background: var(--wash); text-decoration: none; }
+
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.kpi .label { font-size: 12.5px; color: var(--ink-2); }
+.kpi .value { font-size: 30px; font-weight: 650; line-height: 1.15; margin: 6px 0 4px; letter-spacing: -0.01em; }
+.kpi .sub { font-size: 12px; color: var(--muted); }
+
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px 14px; min-width: 0; }
+.span-7 { grid-column: span 7; } .span-5 { grid-column: span 5; }
+.span-6 { grid-column: span 6; } .span-12 { grid-column: span 12; }
+.card h2 { font-size: 15px; line-height: 1.35; margin: 0 0 4px; font-weight: 650; }
+.card .desc { margin: 0 0 12px; font-size: 12.5px; color: var(--ink-2); }
+.card .foot { margin: 8px 0 0; font-size: 11.5px; color: var(--muted); }
+.chart { width: 100%; position: relative; }
+.chart svg { display: block; overflow: visible; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.controls button {
+  font: inherit; font-size: 12.5px; height: 30px; padding: 0 11px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface); color: var(--ink-2);
+}
+.controls button:hover { background: var(--wash); }
+.controls button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); margin: 0 0 8px; align-items: center; }
+.legend .key { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.legend .line { width: 16px; height: 2px; border-radius: 1px; display: inline-block; }
+.legend .title { color: var(--ink); font-weight: 600; margin-right: 2px; }
+
+.axis text { fill: var(--ink-2); font-size: 11px; font-variant-numeric: tabular-nums; }
+.axis path, .axis line { stroke: none; }
+.gridline { stroke: var(--grid); stroke-width: 1; shape-rendering: crispEdges; }
+.baseline { stroke: var(--axis); stroke-width: 1; shape-rendering: crispEdges; }
+.lbl { fill: var(--ink-2); font-size: 11px; }
+.lbl-strong { fill: var(--ink); font-size: 11.5px; font-weight: 600; }
+.halo { paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+
+.district { stroke: var(--surface); stroke-width: 1; cursor: pointer; }
+.district.hl { stroke: var(--ink); stroke-width: 2; }
+
+.tooltip {
+  position: fixed; pointer-events: none; z-index: 10; opacity: 0; transition: opacity 0.08s;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); padding: 10px 12px; font-size: 12px; min-width: 170px; max-width: 260px;
+}
+.tooltip .tt-title { font-weight: 650; font-size: 13px; margin-bottom: 4px; }
+.tooltip .row { display: flex; justify-content: space-between; gap: 16px; color: var(--ink-2); }
+.tooltip .row b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.tooltip .row .k { display: inline-flex; align-items: center; gap: 6px; }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--grid); }
+th:first-child, td:first-child { text-align: left; }
+th { font-weight: 600; color: var(--ink-2); cursor: pointer; user-select: none; position: sticky; top: 0; background: var(--surface); }
+th:hover { color: var(--ink); }
+th[aria-sort="ascending"]::after { content: " \2191"; }
+th[aria-sort="descending"]::after { content: " \2193"; }
+td { font-variant-numeric: tabular-nums; color: var(--ink); }
+td.na { color: var(--muted); }
+tbody tr:hover, tbody tr.hl { background: var(--wash); }
+.table-scroll { max-height: 460px; overflow-y: auto; }
+
+.notes { margin-top: 20px; font-size: 12.5px; color: var(--ink-2); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 28px; }
+.notes p { margin: 0; }
+.notes b { color: var(--ink); font-weight: 600; }
+
+@media (max-width: 1000px) {
+  .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .span-7, .span-5, .span-6 { grid-column: span 12; }
+  .notes { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .wrap { padding: 20px 16px 36px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi .value { font-size: 24px; }
+  header h1 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Bangkok Airbnb market, September 2026</h1>
+      <p>24 monthly snapshots from Inside Airbnb, Sep 2024 to Sep 2026, analysed in SQL. Occupancy is modelled from reviews; prices are asking prices in Thai baht.</p>
+    </div>
+    <nav class="links">
+      <a href="https://github.com/OmidAkrami/bangkok-airbnb-data-useful-for-travel-investment">Code and method on GitHub</a>
+      <button class="theme-btn" id="theme" type="button">Dark mode</button>
+    </nav>
+  </header>
+
+  <section class="kpis" id="kpis" aria-label="Headline figures"></section>
+
+  <div class="grid">
+    <section class="card span-7">
+      <h2 id="map-title">Where Bangkok's listings earn the most</h2>
+      <p class="desc" id="map-desc"></p>
+      <div class="controls" role="group" aria-label="Map measure" id="map-controls"></div>
+      <div class="legend" id="map-legend"></div>
+      <div class="chart" id="map"></div>
+      <p class="foot">Districts with too few listings for a measure are shown without a value. Hover a district to find it on the scatter.</p>
+    </section>
+
+    <section class="card span-5">
+      <h2>Price vs occupancy by district</h2>
+      <p class="desc">Active entire homes with a 1 to 6 night minimum. Bubble size is the number of active listings. Lines mark the city medians.</p>
+      <div class="legend" id="scatter-legend"></div>
+      <div class="chart" id="scatter"></div>
+    </section>
+
+    <section class="card span-7">
+      <h2 id="trend-title">Demand and supply over two years</h2>
+      <p class="desc">Index, Sep 2025 = 100. Demand is reviews in the trailing 12 months across every listing in a snapshot; supply is listings with a review in the last 12 months. Partial snapshots are left out.</p>
+      <div class="legend" id="trend-legend"></div>
+      <div class="chart" id="trend"></div>
+    </section>
+
+    <section class="card span-5">
+      <h2>Big operators hold more listings than they earn from</h2>
+      <p class="desc">Host accounts grouped by listings run. Share of the city's listings, active listings and estimated revenue.</p>
+      <div class="legend" id="tiers-legend"></div>
+      <div class="chart" id="tiers"></div>
+    </section>
+
+    <section class="card span-6">
+      <h2>A nightly 1-bed rarely beats renting by the month</h2>
+      <p class="desc">Occupancy a nightly 1-bed needs to match a monthly let all year, against what the median nightly 1-bed achieves. Before cleaning, fees and utilities.</p>
+      <div class="legend" id="dumbbell-legend"></div>
+      <div class="chart" id="dumbbell"></div>
+      <p class="foot">Districts with 30+ nightly and 30+ monthly 1-beds. Chatuchak and Bang Phlat are left out because their monthly 1-beds are priced above the nightly ones.</p>
+    </section>
+
+    <section class="card span-6">
+      <h2 id="season-title">Seasonality</h2>
+      <p class="desc">Reviews per month against a centred 12-month trend, 2023 to 2025. 100 = an average month. Thin lines show the lowest and highest year.</p>
+      <div class="chart" id="season"></div>
+      <p class="foot">Review dates trail the stay by a week or two.</p>
+    </section>
+
+    <section class="card span-12">
+      <h2>All districts</h2>
+      <p class="desc">Click a column to sort. Prices are entire homes with a 1 to 6 night minimum; occupancy covers all active listings.</p>
+      <div class="table-wrap table-scroll"><table id="table"></table></div>
+    </section>
+  </div>
+
+  <section class="notes" aria-label="Method notes">
+    <p><b>Occupancy</b> uses Inside Airbnb's review-based model: reviews in the last 12 months, divided by a 50% review rate, times the longer of 3 nights or the minimum stay, capped at 70% of the year. Good for ranking, rough as a level.</p>
+    <p><b>Data quality.</b> Feb, Mar and Apr 2026 were partial scrapes and there is no May 2026 snapshot. From Feb 2026 most dormant listings drop out of the scrape, so trends use active listings.</p>
+    <p><b>Source.</b> Inside Airbnb, Bangkok, CC BY 4.0. Prices are asking prices before fees, not what guests paid. Listing locations are shifted by up to about 150 m, fine at district level.</p>
+  </section>
+</div>
+
+<div class="tooltip" id="tt" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="data.js"></script>
+<script>
+(function () {
+  const D = window.DATA;
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const fmt = d3.format(",");
+  const fmt0 = (v) => (v == null ? "n/a" : fmt(Math.round(v)));
+  const pct1 = (v) => (v == null ? "n/a" : `${(+v).toFixed(1)}%`);
+  const signed = (v) => (v == null ? "n/a" : `${v > 0 ? "+" : ""}${(+v).toFixed(1)}%`);
+  const byDistrict = new Map(D.districts.map((d) => [d.district, d]));
+  const nameOf = (d) => (byDistrict.get(d) || {}).name || D.names[d] || d;
+
+  // ---- theme toggle -------------------------------------------------------
+  const root = document.documentElement;
+  const themeBtn = document.getElementById("theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+  function isDark() { return root.getAttribute("data-theme") === "dark"; }
+  function syncThemeLabel() { themeBtn.textContent = isDark() ? "Light mode" : "Dark mode"; }
+  // follow the system setting unless the viewer picked a theme with the button
+  let saved = null;
+  try { saved = localStorage.getItem("theme"); } catch (e) {}
+  root.setAttribute("data-theme", saved || (prefersDark.matches ? "dark" : "light"));
+  syncThemeLabel();
+  themeBtn.addEventListener("click", () => {
+    const next = isDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    saved = next;
+    try { localStorage.setItem("theme", next); } catch (e) {}
+    syncThemeLabel();
+    renderAll();
+  });
+  prefersDark.addEventListener("change", (e) => {
+    if (saved) return;
+    root.setAttribute("data-theme", e.matches ? "dark" : "light");
+    syncThemeLabel(); renderAll();
+  });
+
+  // ---- tooltip --------------------------------------------------------------
+  const tt = document.getElementById("tt");
+  function showTip(evt, title, rows) {
+    tt.innerHTML = `<div class="tt-title">${title}</div>` + rows.map(([k, v, c]) =>
+      `<div class="row"><span class="k">${c ? `<span class="dot" style="width:8px;height:8px;border-radius:50%;background:${c};display:inline-block"></span>` : ""}${k}</span><b>${v}</b></div>`).join("");
+    tt.style.opacity = 1;
+    const pad = 14, r = tt.getBoundingClientRect();
+    let x = evt.clientX + pad, y = evt.clientY + pad;
+    if (x + r.width > window.innerWidth - 8) x = evt.clientX - r.width - pad;
+    if (y + r.height > window.innerHeight - 8) y = evt.clientY - r.height - pad;
+    tt.style.left = `${x}px`; tt.style.top = `${y}px`;
+  }
+  function hideTip() { tt.style.opacity = 0; }
+
+  // ---- shared district highlight -------------------------------------------
+  let highlighted = null;
+  function highlight(district) {
+    highlighted = district;
+    d3.selectAll(".district").classed("hl", (d) => d.properties.district === district);
+    d3.selectAll(".bubble").attr("stroke", (d) => (d.district === district ? css("--ink") : css("--surface")))
+      .attr("stroke-width", (d) => (d.district === district ? 2.5 : 1.5));
+    d3.selectAll(".bubble-label").attr("opacity", (d) => (district == null || d.district === district || d.always ? 1 : 0.35));
+    d3.selectAll("#table tbody tr").classed("hl", (d) => d.district === district);
+  }
+
+  function districtRows(d) {
+    return [
+      ["Listings", fmt0(d.listings)],
+      ["Active listings", fmt0(d.active_listings)],
+      ["Median nightly price", d.price_all_nightly_thb == null ? "n/a" : `THB ${fmt0(d.price_all_nightly_thb)}`],
+      ["Median occupancy, all active listings", pct1(d.occ_all_active_pct)],
+      ["Share of city revenue", pct1(d.pct_of_city_revenue)],
+      ["Active listings vs a year ago", signed(d.active_listings_yoy_pct)],
+      ["Entire homes taking < 30 nights", pct1(d.pct_under_30_nights)],
+    ];
+  }
+
+  // drop map labels that would overlap a bigger district's label (list is in priority order)
+  function placeWithoutOverlap(nodes, w, h) {
+    const kept = [];
+    nodes.forEach((n) => {
+      const b = n.getBBox();
+      const box = [b.x - 2, b.y - 1, b.x + b.width + 2, b.y + b.height + 1];
+      const clash = kept.some((k) => !(box[2] < k[0] || box[0] > k[2] || box[3] < k[1] || box[1] > k[3]));
+      if (clash || box[0] < 0 || box[2] > w || box[1] < 0 || box[3] > h) n.remove();
+      else kept.push(box);
+    });
+  }
+
+  // ---- KPIs ----------------------------------------------------------------
+  function renderKpis() {
+    const k = D.kpis;
+    const tiles = [
+      ["Active listings", fmt(k.active_listings), `of ${fmt(k.listings)} listed, reviewed in the last 12 months`],
+      ["Median nightly price", `THB ${fmt(Math.round(k.median_nightly_entire_thb))}`, "entire home, 1 to 6 night minimum"],
+      ["Median occupancy", `${k.median_occ_pct.toFixed(0)}%`, "of nights, active listings, modelled"],
+      ["Demand, year on year", `+${k.demand_yoy_pct.toFixed(1)}%`, "reviews in the last 12 months"],
+      ["Active supply, year on year", `+${k.active_supply_yoy_pct.toFixed(1)}%`, "so bookings per listing held flat"],
+    ];
+    document.getElementById("kpis").innerHTML = tiles.map(([l, v, s]) =>
+      `<div class="kpi"><div class="label">${l}</div><div class="value">${v}</div><div class="sub">${s}</div></div>`).join("");
+  }
+
+  // ---- map -----------------------------------------------------------------
+  const RAMP = () => ["--ramp-1", "--ramp-2", "--ramp-3", "--ramp-4", "--ramp-5"].map(css);
+  const METRICS = [
+    { key: "price_all_nightly_thb", label: "Nightly price",
+      desc: "Median asking price per night, entire homes with a 1 to 6 night minimum, Sep 2026. Prawet ranks second mostly because its listings are bigger.",
+      thresholds: [1500, 2000, 2500, 3000], unit: (v) => `THB ${fmt0(v)}`, legend: ["< 1,500", "1,500-2,000", "2,000-2,500", "2,500-3,000", "3,000+"], legendTitle: "THB" },
+    { key: "pct_of_city_revenue", label: "Share of revenue",
+      desc: "Each district's share of estimated revenue from active listings over the last 12 months.",
+      thresholds: [0.5, 1, 2.5, 5], unit: pct1, legend: ["< 0.5%", "0.5-1%", "1-2.5%", "2.5-5%", "5%+"], legendTitle: "Share" },
+    { key: "occ_all_active_pct", label: "Occupancy",
+      desc: "Median modelled occupancy of active listings, all room types. Districts with 30+ active listings.",
+      thresholds: [10, 15, 20, 25], unit: pct1, legend: ["< 10%", "10-15%", "15-20%", "20-25%", "25%+"], legendTitle: "Nights booked" },
+    { key: "active_listings_yoy_pct", label: "Growth", diverging: true,
+      desc: "Change in active listings, Sep 2025 to Sep 2026. Districts with 50+ active listings a year ago.",
+      thresholds: [-5, 5, 15, 30], unit: signed, legend: ["< -5%", "-5 to +5%", "+5 to +15%", "+15 to +30%", "+30%+"], legendTitle: "Change" },
+    { key: "pct_under_30_nights", label: "Short stays", title: "Most entire homes take stays under 30 nights",
+      desc: "Share of entire homes with a minimum stay under 30 nights, which Thailand's Hotel Act restricts without a licence. Districts with 100+ entire homes.",
+      thresholds: [70, 80, 85, 90], unit: pct1, legend: ["< 70%", "70-80%", "80-85%", "85-90%", "90%+"], legendTitle: "Share" },
+  ];
+  // headline numbers for the titles, so they follow the data on a rebuild
+  const withPrice = D.districts.filter((d) => d.price_all_nightly_thb != null);
+  const priciest = withPrice.reduce((a, b) => (b.price_all_nightly_thb > a.price_all_nightly_thb ? b : a));
+  const topTwo = D.districts.slice().sort((a, b) => b.pct_of_city_revenue - a.pct_of_city_revenue).slice(0, 2);
+  const busy = D.districts.filter((d) => d.occ_all_active_pct >= 25).length;
+  const withGrowth = D.districts.filter((d) => d.active_listings_yoy_pct != null);
+  const grew = withGrowth.filter((d) => d.active_listings_yoy_pct > 0).length;
+  METRICS[0].title = `${priciest.name} is the most expensive district at THB ${fmt0(priciest.price_all_nightly_thb)} a night`;
+  METRICS[1].title = `${topTwo[0].name} and ${topTwo[1].name} earn ${Math.round(topTwo[0].pct_of_city_revenue + topTwo[1].pct_of_city_revenue)}% of the city's Airbnb revenue`;
+  METRICS[2].title = `Only ${busy} districts have a median occupancy above 25%`;
+  METRICS[3].title = `Active listings grew in ${grew} of ${withGrowth.length} districts over the year`;
+  let metric = METRICS[0];
+
+  function colourFor(m) {
+    const colours = m.diverging ? [css("--neg-2"), css("--mid"), css("--ramp-2"), css("--ramp-3"), css("--ramp-5")] : RAMP();
+    const scale = d3.scaleThreshold().domain(m.thresholds).range(colours);
+    return { scale, colours };
+  }
+
+  function renderMapControls() {
+    const box = document.getElementById("map-controls");
+    box.innerHTML = "";
+    METRICS.forEach((m) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = m.label;
+      b.setAttribute("aria-pressed", m === metric);
+      b.addEventListener("click", () => { metric = m; renderMapControls(); renderMap(); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderMap() {
+    const el = document.getElementById("map");
+    const w = el.clientWidth, h = Math.max(320, Math.round(w * 0.8));
+    document.getElementById("map-title").textContent = metric.title;
+    document.getElementById("map-desc").textContent = metric.desc;
+    const { scale, colours } = colourFor(metric);
+    document.getElementById("map-legend").innerHTML = `<span class="title">${metric.legendTitle}</span>` +
+      colours.map((c, i) => `<span class="key"><span class="sw" style="background:${c}"></span>${metric.legend[i]}</span>`).join("") +
+      `<span class="key"><span class="sw" style="background:${css("--no-data")}"></span>no value</span>`;
+
+    // fit to the districts with 500+ listings so the centre is readable; the outer ring is clipped
+    const core = { type: "FeatureCollection", features: D.geo.features.filter((f) => (byDistrict.get(f.properties.district) || {}).listings >= 500) };
+    const projection = d3.geoMercator().fitExtent([[10, 10], [w - 10, h - 10]], core);
+    const path = d3.geoPath(projection);
+    el.innerHTML = "";
+    const svg = d3.select(el).append("svg").attr("width", w).attr("height", h).style("overflow", "hidden")
+      .attr("role", "img").attr("aria-label", `Map of central Bangkok districts coloured by ${metric.label.toLowerCase()}`);
+    svg.append("g").selectAll("path").data(D.geo.features).join("path")
+      .attr("class", "district")
+      .attr("d", path)
+      .attr("fill", (f) => {
+        const d = byDistrict.get(f.properties.district);
+        const v = d ? d[metric.key] : null;
+        return v == null ? css("--no-data") : scale(v);
+      })
+      .attr("tabindex", 0)
+      .on("mousemove focus", function (evt, f) {
+        const d = byDistrict.get(f.properties.district);
+        highlight(f.properties.district);
+        d3.select(this).raise();
+        const e = evt.clientX != null ? evt : (() => { const r = this.getBoundingClientRect(); return { clientX: r.x + r.width / 2, clientY: r.y + r.height / 2 }; })();
+        showTip(e, d.name, districtRows(d));
+      })
+      .on("mouseleave blur", () => { highlight(null); hideTip(); });
+
+    // name the central districts so the map can be read without hovering
+    const named = ["Vadhana", "Khlong Toei", "Parthum Wan", "Huai Khwang", "Bang Rak", "Ratchathewi", "Chatu Chak", "Phra Nakhon", "Sathon", "Bang Na", "Bang Kapi", "Phra Khanong", "Din Daeng", "Thon buri"];
+    const centroid = new Map(D.geo.features.map((f) => [f.properties.district, path.centroid(f)]));
+    if (w > 420) {
+      svg.append("g").selectAll("text").data(named).join("text")
+        .attr("class", "lbl halo")
+        .attr("x", (d) => centroid.get(d)[0])
+        .attr("y", (d) => centroid.get(d)[1] + (d === "Bang Rak" ? 6 : 0))
+        .attr("text-anchor", "middle").attr("dominant-baseline", "middle")
+        .style("pointer-events", "none").style("font-size", "10.5px").style("fill", css("--ink"))
+        .text((d) => nameOf(d));
+      placeWithoutOverlap(svg.selectAll("text").nodes(), w, h);
+    }
+    if (highlighted) highlight(highlighted);
+  }
+
+  // ---- scatter -------------------------------------------------------------
+  function renderScatter() {
+    const el = document.getElementById("scatter");
+    const w = el.clientWidth, h = Math.max(300, Math.min(620, Math.round(w * 1.08)));
+    const m = { t: 10, r: 14, b: 40, l: 44 };
+    const data = D.districts.filter((d) => d.nightly_price_thb != null && d.nightly_occ_pct != null)
+      .map((d) => ({ ...d }));
+    const top = new Set(data.slice().sort((a, b) => b.active_listings - a.active_listings).slice(0, 7).map((d) => d.district));
+    data.forEach((d) => { d.always = top.has(d.district); });
+    const x = d3.scaleLinear().domain([800, d3.max(data, (d) => d.nightly_price_thb) * 1.08]).nice().range([m.l, w - m.r]);
+    const y = d3.scaleLinear().domain([0, d3.max(data, (d) => d.nightly_occ_pct) * 1.12]).nice().range([h - m.b, m.t]);
+    const r = d3.scaleSqrt().domain([0, d3.max(data, (d) => d.active_listings)]).range([0, Math.min(26, w / 18)]);
+    const city = D.scatterCity;
+
+    document.getElementById("scatter-legend").innerHTML =
+      `<span class="key"><span class="dot" style="background:${css("--blue")}"></span>District (size = active listings)</span>` +
+      `<span class="key"><span class="line" style="background:${css("--muted")}"></span>City median for the same listings: THB ${fmt(city.price_thb)}, ${city.occ_pct}%</span>`;
+
+    el.innerHTML = "";
+    const svg = d3.select(el).append("svg").attr("width", w).attr("height", h)
+      .attr("role", "img").attr("aria-label", "Scatter of median nightly price against median occupancy by district");
+    svg.append("g").selectAll("line").data(y.ticks(5)).join("line").attr("class", "gridline")
+      .attr("x1", m.l).attr("x2", w - m.r).attr("y1", (d) => y(d)).attr("y2", (d) => y(d));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${h - m.b})`)
+      .call(d3.axisBottom(x).ticks(w < 400 ? 4 : 6).tickFormat((v) => fmt(v)).tickSize(0).tickPadding(8));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`)
+      .call(d3.axisLeft(y).ticks(5).tickFormat((v) => `${v}%`).tickSize(0).tickPadding(8));
+    svg.append("text").attr("class", "lbl").attr("x", w - m.r).attr("y", h - 6).attr("text-anchor", "end").text("Median nightly price, THB");
+    svg.append("text").attr("class", "lbl").attr("x", m.l).attr("y", m.t - 2).attr("dy", "-0.2em").text("Median occupancy");
+    svg.append("line").attr("class", "baseline").attr("x1", x(city.price_thb)).attr("x2", x(city.price_thb)).attr("y1", m.t).attr("y2", h - m.b).style("stroke", css("--muted"));
+    svg.append("line").attr("class", "baseline").attr("x1", m.l).attr("x2", w - m.r).attr("y1", y(city.occ_pct)).attr("y2", y(city.occ_pct)).style("stroke", css("--muted"));
+
+    const g = svg.append("g");
+    g.selectAll("circle").data(data.sort((a, b) => b.active_listings - a.active_listings)).join("circle")
+      .attr("class", "bubble")
+      .attr("cx", (d) => x(d.nightly_price_thb)).attr("cy", (d) => y(d.nightly_occ_pct))
+      .attr("r", (d) => Math.max(5, r(d.active_listings)))
+      .attr("fill", css("--blue")).attr("fill-opacity", 0.55)
+      .attr("stroke", css("--surface")).attr("stroke-width", 1.5)
+      .on("mousemove", (evt, d) => {
+        highlight(d.district);
+        showTip(evt, d.name, [
+          ["Median nightly price, active", `THB ${fmt0(d.nightly_price_thb)}`],
+          ["vs city median", signed(d.nightly_price_vs_city_pct)],
+          ["Median occupancy, entire homes", pct1(d.nightly_occ_pct)],
+          ["Active listings", fmt0(d.active_listings)],
+          ["Position", d.quadrant || "n/a"],
+        ]);
+      })
+      .on("mouseleave", () => { highlight(null); hideTip(); });
+    const labels = svg.append("g").selectAll("text").data(data.filter((d) => d.always)).join("text")
+      .attr("class", "lbl halo bubble-label")
+      .attr("dominant-baseline", "middle")
+      .style("fill", css("--ink")).style("pointer-events", "none")
+      .text((d) => d.name);
+    // try right, left, above, below each bubble; keep the first spot that doesn't overlap
+    const placed = [];
+    labels.each(function (d) {
+      const t = d3.select(this), cx = x(d.nightly_price_thb), cy = y(d.nightly_occ_pct), rr = Math.max(5, r(d.active_listings));
+      const tw = this.getComputedTextLength(), th = 12;
+      const spots = [[cx + rr + 3, cy, "start"], [cx - rr - 3, cy, "end"], [cx, cy - rr - 8, "middle"], [cx, cy + rr + 9, "middle"]];
+      for (const [sx, sy, anchor] of spots) {
+        const x0 = anchor === "start" ? sx : anchor === "end" ? sx - tw : sx - tw / 2;
+        const box = [x0, sy - th / 2, x0 + tw, sy + th / 2];
+        const clash = placed.some((b) => !(box[2] < b[0] || box[0] > b[2] || box[3] < b[1] || box[1] > b[3]));
+        if (!clash && box[0] >= m.l && box[2] <= w) {
+          t.attr("x", sx).attr("y", sy).attr("text-anchor", anchor);
+          placed.push(box);
+          return;
+        }
+      }
+      t.remove();
+    });
+
+    if (highlighted) highlight(highlighted);
+  }
+
+  // ---- supply vs demand ------------------------------------------------------
+  function renderTrend() {
+    const el = document.getElementById("trend");
+    const w = el.clientWidth, h = 300;
+    const m = { t: 12, r: 52, b: 30, l: 36 };
+    const parse = d3.timeParse("%Y-%m-%d");
+    const rows = D.monthly.map((d) => ({ ...d, date: parse(d.snapshot_date) }));
+    const base = rows.find((d) => d.snapshot_date === "2025-09-26");
+    rows.forEach((d) => { d.demand = 100 * d.reviews_last_12m / base.reviews_last_12m; d.supply = 100 * d.active_listings / base.active_listings; });
+    const full = rows.filter((d) => d.is_complete);
+    const end = full[full.length - 1];
+    document.getElementById("trend-title").textContent =
+      `Over the last year demand grew ${(end.demand - 100).toFixed(1)}% and supply ${(end.supply - 100).toFixed(1)}%`;
+    const gapStart = parse("2026-02-10"), gapEnd = parse("2026-06-15");
+    const series = [
+      { key: "demand", label: "Demand: reviews, last 12 months", colour: css("--orange") },
+      { key: "supply", label: "Supply: active listings", colour: css("--blue") },
+    ];
+    document.getElementById("trend-legend").innerHTML = series.map((s) =>
+      `<span class="key"><span class="line" style="background:${s.colour}"></span>${s.label}</span>`).join("") +
+      `<span class="key"><span class="sw" style="background:${css("--no-data")}"></span>Partial or missing scrapes</span>`;
+
+    const x = d3.scaleTime().domain([parse("2024-09-10"), parse("2026-10-05")]).range([m.l, w - m.r]);
+    const y = d3.scaleLinear().domain([84, 114]).range([h - m.b, m.t]);
+    el.innerHTML = "";
+    const svg = d3.select(el).append("svg").attr("width", w).attr("height", h)
+      .attr("role", "img").attr("aria-label", "Indexed lines of demand and active supply, Sep 2024 to Sep 2026");
+    svg.append("rect").attr("x", x(gapStart)).attr("width", x(gapEnd) - x(gapStart)).attr("y", m.t).attr("height", h - m.t - m.b).attr("fill", css("--no-data"));
+    svg.append("g").selectAll("line").data(y.ticks(6)).join("line").attr("class", "gridline")
+      .attr("x1", m.l).attr("x2", w - m.r).attr("y1", (d) => y(d)).attr("y2", (d) => y(d));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${h - m.b})`)
+      .call(d3.axisBottom(x).ticks(d3.timeMonth.every(w < 520 ? 12 : 6)).tickFormat(d3.timeFormat("%b %Y")).tickSize(0).tickPadding(8));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`)
+      .call(d3.axisLeft(y).ticks(6).tickSize(0).tickPadding(8));
+    // draw before and after the gap as separate lines so nothing is drawn through missing months
+    const parts = [full.filter((d) => d.date < gapStart), full.filter((d) => d.date > gapEnd)];
+    const line = (k) => d3.line().x((d) => x(d.date)).y((d) => y(d[k]));
+    series.forEach((s) => {
+      parts.forEach((part) => svg.append("path").datum(part).attr("fill", "none").attr("stroke", s.colour).attr("stroke-width", 2)
+        .attr("stroke-linejoin", "round").attr("stroke-linecap", "round").attr("d", line(s.key)));
+      const last = full[full.length - 1];
+      svg.append("circle").attr("cx", x(last.date)).attr("cy", y(last[s.key])).attr("r", 4).attr("fill", s.colour).attr("stroke", css("--surface")).attr("stroke-width", 2);
+      svg.append("text").attr("class", "lbl-strong").attr("x", x(last.date) + 8).attr("y", y(last[s.key]) + (s.key === "demand" ? -6 : 8))
+        .attr("dominant-baseline", "middle").text(`+${(last[s.key] - 100).toFixed(1)}%`);
+    });
+    svg.append("circle").attr("cx", x(base.date)).attr("cy", y(100)).attr("r", 4).attr("fill", css("--ink-2")).attr("stroke", css("--surface")).attr("stroke-width", 2);
+    svg.append("text").attr("class", "lbl halo").attr("x", x(base.date)).attr("y", y(100) + 16).attr("text-anchor", "middle").text("Sep 2025 = 100");
+
+    // crosshair
+    const cross = svg.append("line").attr("y1", m.t).attr("y2", h - m.b).attr("stroke", css("--axis")).attr("opacity", 0);
+    const dots = series.map((s) => svg.append("circle").attr("r", 4.5).attr("fill", s.colour).attr("stroke", css("--surface")).attr("stroke-width", 2).attr("opacity", 0));
+    svg.append("rect").attr("x", m.l).attr("y", m.t).attr("width", w - m.l - m.r).attr("height", h - m.t - m.b).attr("fill", "transparent")
+      .on("mousemove", (evt) => {
+        const [px] = d3.pointer(evt);
+        const t = x.invert(px);
+        const d = full.reduce((a, b) => (Math.abs(b.date - t) < Math.abs(a.date - t) ? b : a));
+        cross.attr("x1", x(d.date)).attr("x2", x(d.date)).attr("opacity", 1);
+        dots.forEach((c, i) => c.attr("cx", x(d.date)).attr("cy", y(d[series[i].key])).attr("opacity", 1));
+        showTip(evt, d3.timeFormat("%d %b %Y")(d.date), [
+          ["Demand index", d.demand.toFixed(1), series[0].colour],
+          ["Supply index", d.supply.toFixed(1), series[1].colour],
+          ["Reviews, last 12 months", fmt(d.reviews_last_12m)],
+          ["Active listings", fmt(d.active_listings)],
+        ]);
+      })
+      .on("mouseleave", () => { cross.attr("opacity", 0); dots.forEach((c) => c.attr("opacity", 0)); hideTip(); });
+  }
+
+  // ---- host tiers ----------------------------------------------------------
+  function renderTiers() {
+    const el = document.getElementById("tiers");
+    const w = el.clientWidth;
+    const series = [
+      { key: "pct_of_listings", label: "All listings", colour: css("--grey-mark") },
+      { key: "pct_of_active_listings", label: "Active listings", colour: css("--blue-light") },
+      { key: "pct_of_revenue", label: "Estimated revenue", colour: css("--blue") },
+    ];
+    document.getElementById("tiers-legend").innerHTML = series.map((s) =>
+      `<span class="key"><span class="sw" style="background:${s.colour}"></span>${s.label}</span>`).join("");
+    const tiers = D.hostTiers;
+    const m = { t: 4, r: 44, b: 26, l: 84 };
+    const band = 50, h = m.t + m.b + band * tiers.length;
+    const x = d3.scaleLinear().domain([0, 40]).range([m.l, w - m.r]);
+    const y = d3.scaleBand().domain(tiers.map((d) => d.tier)).range([m.t, h - m.b]).paddingInner(0.22);
+    const sub = d3.scaleBand().domain(series.map((s) => s.key)).range([0, y.bandwidth()]).paddingInner(0.12);
+    el.innerHTML = "";
+    const svg = d3.select(el).append("svg").attr("width", w).attr("height", h)
+      .attr("role", "img").attr("aria-label", "Bars of listing, active listing and revenue share by host size tier");
+    svg.append("g").selectAll("line").data(x.ticks(4)).join("line").attr("class", "gridline")
+      .attr("x1", (d) => x(d)).attr("x2", (d) => x(d)).attr("y1", m.t).attr("y2", h - m.b);
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${h - m.b})`)
+      .call(d3.axisBottom(x).ticks(4).tickFormat((v) => `${v}%`).tickSize(0).tickPadding(8));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l - 8},0)`)
+      .call(d3.axisLeft(y).tickFormat((t) => (t === "1 listing" ? "1 listing" : `${t} listings`)).tickSize(0));
+    const groups = svg.append("g").selectAll("g").data(tiers).join("g").attr("transform", (d) => `translate(0,${y(d.tier)})`);
+    series.forEach((s) => {
+      groups.append("rect")
+        .attr("x", x(0)).attr("y", sub(s.key))
+        .attr("width", (d) => x(d[s.key]) - x(0)).attr("height", Math.min(sub.bandwidth(), 24))
+        .attr("fill", s.colour);
+      groups.append("text").attr("class", "lbl").attr("x", (d) => x(d[s.key]) + 4)
+        .attr("y", sub(s.key) + Math.min(sub.bandwidth(), 24) / 2).attr("dominant-baseline", "middle")
+        .style("font-size", "10px").text((d) => `${d[s.key].toFixed(1)}%`);
+    });
+    groups.append("rect").attr("x", m.l).attr("width", w - m.l - m.r).attr("height", y.bandwidth()).attr("fill", "transparent")
+      .on("mousemove", (evt, d) => showTip(evt, d.tier === "1 listing" ? "Hosts with 1 listing" : `Hosts with ${d.tier} listings`, [
+        ["Host accounts", fmt(d.hosts)],
+        ["Share of listings", pct1(d.pct_of_listings), series[0].colour],
+        ["Share of active listings", pct1(d.pct_of_active_listings), series[1].colour],
+        ["Share of revenue", pct1(d.pct_of_revenue), series[2].colour],
+        ["Listings active", pct1(d.pct_active)],
+        ["Median occupancy, active", pct1(d.median_occ_active_pct)],
+      ]))
+      .on("mouseleave", hideTip);
+  }
+
+  // ---- nightly vs monthly ----------------------------------------------------
+  function renderDumbbell() {
+    const el = document.getElementById("dumbbell");
+    const w = el.clientWidth;
+    const data = D.shortVsMonthly.filter((d) => d.monthly_discount_pct > 0).sort((a, b) => b.break_even_occ_pct - a.break_even_occ_pct);
+    const blue = css("--blue"), orange = css("--orange");
+    document.getElementById("dumbbell-legend").innerHTML =
+      `<span class="key"><span class="dot" style="background:${blue}"></span>Median nightly 1-bed's occupancy</span>` +
+      `<span class="key"><span class="dot" style="background:${orange}"></span>Needed to match monthly rent</span>`;
+    const m = { t: 6, r: 16, b: 28, l: 100 };
+    const row = 24, h = m.t + m.b + row * data.length;
+    const x = d3.scaleLinear().domain([0, 80]).range([m.l, w - m.r]);
+    const y = d3.scaleBand().domain(data.map((d) => d.district)).range([m.t, h - m.b]);
+    el.innerHTML = "";
+    const svg = d3.select(el).append("svg").attr("width", w).attr("height", h)
+      .attr("role", "img").attr("aria-label", "Break-even occupancy against median occupancy for nightly 1-bed listings by district");
+    svg.append("g").selectAll("line").data(x.ticks(4)).join("line").attr("class", "gridline")
+      .attr("x1", (d) => x(d)).attr("x2", (d) => x(d)).attr("y1", m.t).attr("y2", h - m.b);
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${h - m.b})`)
+      .call(d3.axisBottom(x).ticks(4).tickFormat((v) => `${v}%`).tickSize(0).tickPadding(8));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l - 8},0)`)
+      .call(d3.axisLeft(y).tickFormat((d) => nameOf(d)).tickSize(0));
+    const g = svg.append("g").selectAll("g").data(data).join("g").attr("transform", (d) => `translate(0,${y(d.district) + y.bandwidth() / 2})`);
+    g.append("line").attr("x1", (d) => x(d.nightly_median_occ_pct)).attr("x2", (d) => x(d.break_even_occ_pct)).attr("stroke", css("--grid")).attr("stroke-width", 3).attr("stroke-linecap", "round");
+    g.append("circle").attr("cx", (d) => x(d.nightly_median_occ_pct)).attr("r", 5).attr("fill", blue).attr("stroke", css("--surface")).attr("stroke-width", 2);
+    g.append("circle").attr("cx", (d) => x(d.break_even_occ_pct)).attr("r", 5).attr("fill", orange).attr("stroke", css("--surface")).attr("stroke-width", 2);
+    g.append("rect").attr("x", m.l).attr("y", -y.bandwidth() / 2).attr("width", w - m.l - m.r).attr("height", y.bandwidth()).attr("fill", "transparent")
+      .on("mousemove", (evt, d) => showTip(evt, nameOf(d.district), [
+        ["Median nightly price", `THB ${fmt0(d.nightly_price_thb)}`],
+        ["Median monthly rent", `THB ${fmt0(d.monthly_rent_thb)}`],
+        ["Monthly discount per night", pct1(d.monthly_discount_pct)],
+        ["Break-even occupancy", pct1(d.break_even_occ_pct), orange],
+        ["Median nightly occupancy", pct1(d.nightly_median_occ_pct), blue],
+        ["Nightly 1-beds beating monthly", pct1(d.pct_beating_monthly)],
+      ]))
+      .on("mouseleave", hideTip);
+  }
+
+  // ---- seasonality ---------------------------------------------------------
+  function renderSeason() {
+    const el = document.getElementById("season");
+    const w = el.clientWidth, h = Math.max(280, 24 * 13 + 34);
+    const m = { t: 18, r: 10, b: 28, l: 34 };
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const data = D.seasonality;
+    const peak = data.reduce((a, b) => (b.season_index > a.season_index ? b : a));
+    const low = data.reduce((a, b) => (b.season_index < a.season_index ? b : a));
+    const full = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    document.getElementById("season-title").textContent = `${full[peak.month_of_year - 1]} is the peak month, ${full[low.month_of_year - 1]} the low`;
+    const x = d3.scaleBand().domain(months).range([m.l, w - m.r]).paddingInner(0.38);
+    const y = d3.scaleLinear().domain([70, 145]).range([h - m.b, m.t]);
+    el.innerHTML = "";
+    const svg = d3.select(el).append("svg").attr("width", w).attr("height", h)
+      .attr("role", "img").attr("aria-label", "Seasonality index by month");
+    svg.append("g").selectAll("line").data(y.ticks(6)).join("line").attr("class", "gridline")
+      .attr("x1", m.l).attr("x2", w - m.r).attr("y1", (d) => y(d)).attr("y2", (d) => y(d));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`)
+      .call(d3.axisLeft(y).ticks(6).tickSize(0).tickPadding(8));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${h - m.b})`)
+      .call(d3.axisBottom(x).tickSize(0).tickPadding(8));
+    const bw = Math.min(x.bandwidth(), 24);
+    const g = svg.append("g").selectAll("g").data(data).join("g")
+      .attr("transform", (d) => `translate(${x(months[d.month_of_year - 1]) + (x.bandwidth() - bw) / 2},0)`);
+    g.append("rect").attr("width", bw)
+      .attr("y", (d) => y(Math.max(100, d.season_index)))
+      .attr("height", (d) => Math.abs(y(d.season_index) - y(100)))
+      .attr("fill", (d) => (d.season_index >= 100 ? css("--blue") : css("--grey-mark")));
+    g.append("line").attr("x1", bw / 2).attr("x2", bw / 2).attr("y1", (d) => y(d.lowest_year)).attr("y2", (d) => y(d.highest_year))
+      .attr("stroke", css("--ink-2")).attr("stroke-width", 1.2);
+    svg.append("line").attr("class", "baseline").attr("x1", m.l).attr("x2", w - m.r).attr("y1", y(100)).attr("y2", y(100)).style("stroke", css("--muted"));
+    [peak, low].forEach((d) => {
+      const i = d.month_of_year - 1;
+      const up = d.season_index >= 100;
+      svg.append("text").attr("class", "lbl-strong").attr("text-anchor", "middle")
+        .attr("x", x(months[i]) + x.bandwidth() / 2).attr("y", up ? y(d.highest_year) - 6 : y(d.lowest_year) + 14).text(d.season_index);
+    });
+    g.append("rect").attr("x", -(x.step() - bw) / 2).attr("width", x.step()).attr("y", m.t).attr("height", h - m.t - m.b).attr("fill", "transparent")
+      .on("mousemove", (evt, d) => showTip(evt, months[d.month_of_year - 1], [
+        ["Season index", d.season_index],
+        ["Lowest year", d.lowest_year],
+        ["Highest year", d.highest_year],
+      ]))
+      .on("mouseleave", hideTip);
+  }
+
+  // ---- table ---------------------------------------------------------------
+  const COLS = [
+    { key: "name", label: "District", f: (v) => v },
+    { key: "listings", label: "Listings", f: fmt0 },
+    { key: "active_listings", label: "Active", f: fmt0 },
+    { key: "price_all_nightly_thb", label: "Nightly price (THB)", f: fmt0 },
+    { key: "occ_all_active_pct", label: "Occupancy", f: pct1 },
+    { key: "pct_of_city_revenue", label: "Share of revenue", f: pct1 },
+    { key: "active_listings_yoy_pct", label: "Active, YoY", f: signed },
+    { key: "pct_under_30_nights", label: "Entire homes < 30 nights", f: pct1 },
+    { key: "pct_active_listings_pro_hosts", label: "Run by 10+ hosts", f: pct1 },
+    { key: "hhi", label: "HHI", f: fmt0 },
+  ];
+  let sortKey = "listings", sortDir = "descending";
+  function renderTable() {
+    const t = d3.select("#table");
+    t.html("");
+    t.append("thead").append("tr").selectAll("th").data(COLS).join("th")
+      .attr("scope", "col").attr("tabindex", 0)
+      .attr("aria-sort", (c) => (c.key === sortKey ? sortDir : null))
+      .text((c) => c.label)
+      .on("click keydown", (evt, c) => {
+        if (evt.type === "keydown" && evt.key !== "Enter" && evt.key !== " ") return;
+        evt.preventDefault();
+        if (sortKey === c.key) sortDir = sortDir === "descending" ? "ascending" : "descending";
+        else { sortKey = c.key; sortDir = c.key === "name" ? "ascending" : "descending"; }
+        renderTable();
+      });
+    const rows = D.districts.slice().sort((a, b) => {
+      const va = a[sortKey], vb = b[sortKey];
+      if (va == null && vb == null) return 0;
+      if (va == null) return 1;
+      if (vb == null) return -1;
+      const c = typeof va === "string" ? va.localeCompare(vb) : va - vb;
+      return sortDir === "ascending" ? c : -c;
+    });
+    t.append("tbody").selectAll("tr").data(rows).join("tr")
+      .on("mouseenter", (evt, d) => highlight(d.district))
+      .on("mouseleave", () => highlight(null))
+      .selectAll("td").data((d) => COLS.map((c) => ({ v: d[c.key], c })))
+      .join("td").classed("na", (d) => d.v == null).text((d) => (d.v == null ? "n/a" : d.c.f(d.v)));
+  }
+
+  function renderAll() {
+    renderMap(); renderScatter(); renderTrend(); renderTiers(); renderDumbbell(); renderSeason();
+  }
+
+  renderKpis();
+  renderMapControls();
+  renderAll();
+  renderTable();
+  let resizeTimer;
+  window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(renderAll, 120); });
+})();
+</script>
+</body>
+</html>

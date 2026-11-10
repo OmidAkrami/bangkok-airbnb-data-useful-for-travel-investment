@@ -1,0 +1,9 @@
+room_type,stay_type,listings,p25_thb,median_thb,p75_thb
+Entire home/apt,nightly,11240,1508.00,2160.24,3545.12
+Entire home/apt,weekly,5063,971.90,1369.22,1828.18
+Entire home/apt,monthly,2861,848.71,1187.74,1770.85
+Hotel room,nightly,269,1143.00,1920.00,2957.00
+Private room,nightly,7648,925.00,1392.80,2225.00
+Private room,weekly,447,784.13,1111.11,1643.21
+Private room,monthly,557,713.18,1062.18,1448.89
+Shared room,nightly,519,332.90,419.00,550.00

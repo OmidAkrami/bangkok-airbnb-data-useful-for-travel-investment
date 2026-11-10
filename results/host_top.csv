@@ -1,0 +1,16 @@
+listings_rank,host_id,host_name,listings,active_listings,districts,main_district,pct_entire_home,median_price_thb,median_rating,median_occ_pct,est_revenue_m_thb,revenue_rank
+1,262132406,Loksu Baan,257,46,10,Huai Khwang,89.5,1454,5.0,5.5,2.2,298
+2,574804920,Jimmy,247,15,9,Khlong Toei,96.4,4845,5.0,3.3,3.8,166
+3,493412920,Alice,231,13,26,Phra Nakhon,0.0,3539,4.04,1.6,0.2,2257
+4,10005164,Sontana,203,164,13,Vadhana,99.5,1647,5.0,46.0,45.7,1
+5,201677068,Curry,192,80,12,Huai Khwang,99.5,1499,4.65,31.8,10.5,37
+6,680424509,Jing,129,2,9,Huai Khwang,100.0,1540,2.5,9.6,0.0,3850
+7,693626993,Zoe,127,107,4,Huai Khwang,100.0,2380,5.0,8.2,19.1,9
+8,26736483,K S,122,81,5,Bang Rak,93.4,2007,4.51,8.2,6.8,69
+8,52161947,Noons,122,62,9,Khlong Toei,99.2,1296,4.6,29.3,9.0,47
+10,122824264,Tony NOSBAAN,121,105,4,Vadhana,100.0,1827,5.0,65.8,37.2,2
+11,705655935,Felicity,120,11,2,Huai Khwang,100.0,1796,5.0,3.3,0.4,1460
+12,219984842,Haobin,119,23,8,Huai Khwang,92.4,1320,5.0,3.3,0.8,857
+12,470720650,Bo,119,25,4,Sathon,0.0,919,5.0,1.6,0.2,2341
+14,653148266,Xixi,113,10,5,Huai Khwang,100.0,1850,5.0,2.5,0.2,2358
+15,501920630,LeFoyer,112,87,2,Vadhana,100.0,2400,4.66,8.2,12.0,26

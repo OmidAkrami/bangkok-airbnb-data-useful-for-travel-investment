@@ -1,0 +1,5 @@
+amenity,pct_of_listings,naive_premium_pct,premium_same_district_size_pct,premium_plus_property_type_pct,cells_used_b
+pool,60.0,4.0,28.4,27.9,39
+gym,42.6,5.0,8.7,8.4,45
+workspace,69.2,4.1,3.5,3.9,48
+self check-in,54.1,6.2,-6.6,-4.0,46

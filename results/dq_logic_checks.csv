@@ -1,0 +1,10 @@
+check_name,rows_failing
+duplicate listing_id within a snapshot,0
+last_review before first_review,0
+reviews_ltm greater than reviews_total,0
+min_nights greater than max_nights,0
+last_review after the snapshot date,2893
+last_review more than 14 days after the snapshot date,0
+first_review before host_since,421
+coordinates outside greater Bangkok box,0
+"price outside 200 to 100,000 THB",955

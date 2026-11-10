@@ -1,0 +1,6 @@
+tier,hosts,listings,active_listings,pct_active,pct_of_listings,pct_of_active_listings,pct_of_revenue,median_occ_active_pct,median_rating,pct_superhost_listings
+1 listing,4503,4503,1831,40.7,14.6,11.2,12.6,21.9,4.9,20.7
+2-4,2109,5605,3236,57.7,18.1,19.8,20.4,19.7,4.89,39.1
+5-19,1135,9362,5485,58.6,30.3,33.5,34.4,16.4,4.86,44.8
+20-99,225,8905,4949,55.6,28.8,30.2,27.9,18.1,4.81,36.5
+100+,17,2547,872,34.2,8.2,5.3,4.6,16.4,4.83,32.1
