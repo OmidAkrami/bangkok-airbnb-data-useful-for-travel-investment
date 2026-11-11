@@ -234,7 +234,8 @@ def price_by_district():
     ax.set_yticks(y, [f"{name(d)}  ({n:,})" for d, n in zip(p.district, p.listings)])
     ax.set_xlabel("THB per night  (listings in brackets)")
     ax.xaxis.set_major_formatter(lambda v, _: f"{v:,.0f}")
-    ax.set_xlim(0, 6600)
+    # axis runs to the next 500 above the widest bar, so no bar is cut off
+    ax.set_xlim(0, (p.p75_thb.max() // 500 + 1) * 500)
     ax.set_ylim(-0.8, len(p) - 0.1)
     ax.grid(axis="x")
     ax.set_axisbelow(True)
