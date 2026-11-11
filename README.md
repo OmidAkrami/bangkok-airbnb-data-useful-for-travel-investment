@@ -94,17 +94,27 @@ In Chatuchak and Bang Phlat the monthly 1-beds are actually pricier per night th
 
 Most of the time on this went into working out which numbers hold up. The checks are views in [`02_data_quality.sql`](sql/02_data_quality.sql).
 
-**Three partial snapshots.** February, March and April 2026 have 25k, 16k and 17k listings against 30k either side. Of the 10,271 listings that disappear between February and March, 8,973 show up again later ([dq_dropouts](results/dq_dropouts.csv)). Two checks catch this. "Holes" counts listings seen before and after a snapshot but missing from it: a few hundred in a normal month, 4,000 to 12,000 in these three. And the share of the previous month's listings still present is 95 to 98% normally and 77%, 59% and 89% for these. They're flagged `is_complete = false`. Changes and year-on-year figures skip them; views that list every month keep them as flagged rows. ([dq_snapshot_coverage](results/dq_snapshot_coverage.csv))
+### Three partial snapshots
 
-**The partial scrapes are skewed.** March and April 2026 contain 6 and 1 listings with a 30+ night minimum, against around 13 to 15% of listings in every full snapshot. ([dq_partial_scrape_profile](results/dq_partial_scrape_profile.csv))
+February, March and April 2026 have 25k, 16k and 17k listings against 30k either side. Of the 10,271 listings that disappear between February and March, 8,973 show up again later ([dq_dropouts](results/dq_dropouts.csv)). Two checks catch this. "Holes" counts listings seen before and after a snapshot but missing from it: a few hundred in a normal month, 4,000 to 12,000 in these three. And the share of the previous month's listings still present is 95 to 98% normally and 77%, 59% and 89% for these. They're flagged `is_complete = false`. Changes and year-on-year figures skip them; views that list every month keep them as flagged rows. ([dq_snapshot_coverage](results/dq_snapshot_coverage.csv))
 
-**Dormant listings drop out from February 2026.** Until January every snapshot had around 3,000 listings with a calendar blocked all year and no reviews. Afterwards, around 800. 73% of the 3,359 listings last seen in January 2026 were fully blocked; for the leavers of every other complete snapshot it's 3 to 15%. My first host chart showed hosts with 10+ listings jumping from 46% to 51% of supply between January and June 2026, and about half of that was this. Trends that cross February 2026 use active listings. Even then, the 10+ host share sits at 41 to 43% for 16 months and steps to 44.5% across the gap, which I can't separate from scrape changes. ([dq_dormant_listings](results/dq_dormant_listings.csv), [dq_leavers_blocked](results/dq_leavers_blocked.csv), [host_pro_share_trend](results/host_pro_share_trend.csv))
+### The partial scrapes are skewed
+
+March and April 2026 contain 6 and 1 listings with a 30+ night minimum, against around 13 to 15% of listings in every full snapshot. ([dq_partial_scrape_profile](results/dq_partial_scrape_profile.csv))
+
+### Dormant listings drop out from February 2026
+
+Until January every snapshot had around 3,000 listings with a calendar blocked all year and no reviews. Afterwards, around 800. 73% of the 3,359 listings last seen in January 2026 were fully blocked; for the leavers of every other complete snapshot it's 3 to 15%. My first host chart showed hosts with 10+ listings jumping from 46% to 51% of supply between January and June 2026, and about half of that was this. Trends that cross February 2026 use active listings. Even then, the 10+ host share sits at 41 to 43% for 16 months and steps to 44.5% across the gap, which I can't separate from scrape changes. ([dq_dormant_listings](results/dq_dormant_listings.csv), [dq_leavers_blocked](results/dq_leavers_blocked.csv), [host_pro_share_trend](results/host_pro_share_trend.csv))
 
 ![Listings and dormant listings per snapshot](charts/07_scrape_changes.png)
 
-**Price means two different things.** Until November 2025 `price` is the listed nightly price. December 2025 to February 2026 have no price. From March 2026 it's a quote for a stay of `min_nights` starting a few days out (true for 94% of listings). So a 7-night minimum shows a weekly per-night rate and a 30-night minimum a monthly one. 26% of active entire homes with a usable price that accept stays under 30 nights have a 7 to 29 night minimum, which is why pricing uses 1 to 6 night listings. The two price series are never compared with each other. ([dq_quote_window](results/dq_quote_window.csv), [price_city_overview](results/price_city_overview.csv))
+### Price means two different things
 
-**Survivorship in the reviews file.** It only has reviews for listings still listed in September 2026. Listings that left since September 2024 took about 155,000 reviews with them, at least 17.7% of the history (more left before 2024). Measured from the reviews file, demand grew 24% in a year. Summing `reviews_ltm` across each snapshot, which counts listings that later disappeared, gives 10.5%. The second is the less biased number. ([trend_growth_two_ways](results/trend_growth_two_ways.csv))
+Until November 2025 `price` is the listed nightly price. December 2025 to February 2026 have no price. From March 2026 it's a quote for a stay of `min_nights` starting a few days out (true for 94% of listings). So a 7-night minimum shows a weekly per-night rate and a 30-night minimum a monthly one. 26% of active entire homes with a usable price that accept stays under 30 nights have a 7 to 29 night minimum, which is why pricing uses 1 to 6 night listings. The two price series are never compared with each other. ([dq_quote_window](results/dq_quote_window.csv), [price_city_overview](results/price_city_overview.csv))
+
+### Survivorship in the reviews file
+
+It only has reviews for listings still listed in September 2026. Listings that left since September 2024 took about 155,000 reviews with them, at least 17.7% of the history (more left before 2024). Measured from the reviews file, demand grew 24% in a year. Summing `reviews_ltm` across each snapshot, which counts listings that later disappeared, gives 10.5%. The second is the less biased number. ([trend_growth_two_ways](results/trend_growth_two_ways.csv))
 
 ![Demand growth measured two ways](charts/08_growth_two_ways.png)
 
