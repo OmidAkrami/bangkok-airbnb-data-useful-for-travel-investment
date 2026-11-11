@@ -441,7 +441,11 @@ tbody tr:hover, tbody tr.hl { background: var(--wash); }
     const m = { t: 10, r: 14, b: 40, l: 44 };
     const data = D.districts.filter((d) => d.nightly_price_thb != null && d.nightly_occ_pct != null)
       .map((d) => ({ ...d }));
-    const top = new Set(data.slice().sort((a, b) => b.nightly_active_listings - a.nightly_active_listings).slice(0, 7).map((d) => d.district));
+    // labelled: the 7 largest, every district at 25%+ median occupancy, and the two priciest
+    const largest = data.slice().sort((a, b) => b.nightly_active_listings - a.nightly_active_listings).slice(0, 7);
+    const priciest = data.slice().sort((a, b) => b.nightly_price_thb - a.nightly_price_thb).slice(0, 2);
+    const busiest = data.filter((d) => d.nightly_occ_pct >= 25);
+    const top = new Set([...largest, ...busiest, ...priciest].map((d) => d.district));
     data.forEach((d) => { d.always = top.has(d.district); });
     const x = d3.scaleLinear().domain([800, d3.max(data, (d) => d.nightly_price_thb) * 1.08]).nice().range([m.l, w - m.r]);
     const y = d3.scaleLinear().domain([0, d3.max(data, (d) => d.nightly_occ_pct) * 1.12]).nice().range([h - m.b, m.t]);
